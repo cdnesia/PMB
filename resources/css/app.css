@@ -1,0 +1,89 @@
+@import 'select2/dist/css/select2.min.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+[x-cloak] {
+    display: none !important;
+}
+
+/* ===== Select2 theme overrides (match Tailwind indigo theme) ===== */
+.select2-container .select2-selection--single {
+    height: 2.6rem;
+    display: flex;
+    align-items: center;
+    border: 0;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05), 0 0 0 1px rgba(209, 213, 219, 1);
+    border-radius: 0.5rem;
+    padding: 0 0.5rem;
+    background-color: #fff;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: #111827;
+    line-height: 2.6rem;
+    padding-left: 0.25rem;
+    font-size: 0.875rem;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__placeholder {
+    color: #9ca3af;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 2.6rem;
+    width: 2rem;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow b {
+    border-color: #6b7280 transparent transparent transparent;
+}
+
+.select2-container--open .select2-selection--single {
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 1), 0 0 0 4px rgba(79, 70, 229, 0.1);
+    border-radius: 0.5rem;
+}
+
+.select2-dropdown {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+.select2-container--default .select2-results__option {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    color: #111827;
+}
+
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background-color: #eef2ff;
+    color: #4f46e5;
+}
+
+.select2-container--default .select2-results__option[aria-selected="true"] {
+    background-color: #eef2ff;
+}
+
+.select2-container--default .select2-search--dropdown .select2-search__field {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    outline: none;
+}
+
+.select2-container--default .select2-search--dropdown .select2-search__field:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+}
+
+.select2-container--default .select2-results > .select2-results__options {
+    max-height: 240px;
+}
+
+.select2-container .select2-selection--single:focus-visible {
+    outline: none;
+}
