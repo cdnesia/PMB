@@ -31,7 +31,7 @@ class SettingProdiController extends Controller
 
         $selected = ProdiKelasJalur::where('prodi_id', $prodi->id)
             ->get()
-            ->mapWithKeys(fn ($pkj) => [$pkj->kelas_id.'-'.$pkj->jalur_id => true]);
+            ->mapWithKeys(fn ($pkj) => [$pkj->kelas_id.'|'.$pkj->jalur_id => true]);
 
         return view('admin.setting-prodi.form', compact('prodi', 'kelasList', 'jalurList', 'selected'));
     }
@@ -45,7 +45,7 @@ class SettingProdiController extends Controller
 
         $rows = [];
         foreach (array_keys($request->input('combos', [])) as $key) {
-            [$kelasId, $jalurId] = explode('-', $key);
+            [$kelasId, $jalurId] = explode('|', $key);
             $rows[] = [
                 'prodi_id' => $prodi->id,
                 'kelas_id' => $kelasId,
