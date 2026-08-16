@@ -125,8 +125,9 @@
                                 <div class="mt-2">
                                     <x-ui-select name="jenis_kelamin" id="jenis_kelamin" required>
                                         <option value="">-- Pilih --</option>
-                                        <option value="L" @selected(old('jenis_kelamin') === 'L')>Laki-laki</option>
-                                        <option value="P" @selected(old('jenis_kelamin') === 'P')>Perempuan</option>
+                                        @foreach ($refs['jenis_kelamin'] as $j)
+                                            <option value="{{ $j['id_jenis_kelamin'] }}" @selected((string) old('jenis_kelamin') === (string) $j['id_jenis_kelamin'])>{{ $j['nama_jenis_kelamin'] }}</option>
+                                        @endforeach
                                     </x-ui-select>
                                 </div>
                                 @error('jenis_kelamin')<p class="mt-1.5 text-sm text-red-600">{{ $message }}</p>@enderror
@@ -169,7 +170,10 @@
                             </div>
 
                             <div class="md:col-span-2">
-                                <x-ui-label for="alamat" required>Alamat Lengkap (Jalan)</x-ui-label>
+                                <x-ui-label for="alamat" required>
+                                    <span x-show="kewarganegaraan === 'WNA'" x-cloak>Alamat Domisili</span>
+                                    <span x-show="kewarganegaraan !== 'WNA'">Alamat Lengkap (Jalan)</span>
+                                </x-ui-label>
                                 <div class="mt-2">
                                     <textarea name="alamat" id="alamat" rows="2" required
                                               class="block w-full rounded-lg border-0 px-3 py-2.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -192,50 +196,7 @@
                                 </div>
                             </div>
 
-                            <div class="md:col-span-2">
-                                <x-ui-label for="dusun">Dusun / Kampung</x-ui-label>
-                                <div class="mt-2">
-                                    <x-ui-input name="dusun" id="dusun" :value="old('dusun')" placeholder="Nama dusun/kampung (opsional)" />
-                                </div>
-                            </div>
-
-                            <div>
-                                <x-ui-label for="jenis_tinggal">Jenis Tinggal</x-ui-label>
-                                <div class="mt-2">
-                                    <x-ui-select name="jenis_tinggal" id="jenis_tinggal">
-                                        <option value="">-- Pilih --</option>
-                                        @foreach ($refs['jenis_tinggal'] as $r)
-                                            <option value="{{ $r['id_jenis_tinggal'] }}" @selected((string) old('jenis_tinggal') === (string) $r['id_jenis_tinggal'])>{{ $r['nama_jenis_tinggal'] }}</option>
-                                        @endforeach
-                                    </x-ui-select>
-                                </div>
-                            </div>
-
-                            <div>
-                                <x-ui-label for="alat_transportasi">Alat Transportasi</x-ui-label>
-                                <div class="mt-2">
-                                    <x-ui-select name="alat_transportasi" id="alat_transportasi">
-                                        <option value="">-- Pilih --</option>
-                                        @foreach ($refs['alat_transportasi'] as $r)
-                                            <option value="{{ $r['id_alat_transportasi'] }}" @selected((string) old('alat_transportasi') === (string) $r['id_alat_transportasi'])>{{ $r['nama_alat_transportasi'] }}</option>
-                                        @endforeach
-                                    </x-ui-select>
-                                </div>
-                            </div>
-
-                            <div>
-                                <x-ui-label for="pembiayaan">Pembiayaan</x-ui-label>
-                                <div class="mt-2">
-                                    <x-ui-select name="pembiayaan" id="pembiayaan">
-                                        <option value="">-- Pilih --</option>
-                                        @foreach ($refs['pembiayaan'] as $r)
-                                            <option value="{{ $r['id_pembiayaan'] }}" @selected((string) old('pembiayaan') === (string) $r['id_pembiayaan'])>{{ $r['nama_pembiayaan'] }}</option>
-                                        @endforeach
-                                    </x-ui-select>
-                                </div>
-                            </div>
-
-                            <div x-show="kewarganegaraan === 'WNI'" class="md:col-span-2 grid grid-cols-1 gap-6 md:grid-cols-2">
+                            <div class="md:col-span-2 grid grid-cols-1 gap-6 md:grid-cols-2">
                                 <div>
                                     <x-ui-label for="provinsi" required>Provinsi</x-ui-label>
                                     <div class="mt-2">
@@ -267,11 +228,11 @@
                                 </div>
 
                                 <div>
-                                    <x-ui-label for="kelurahan">Kelurahan / Desa</x-ui-label>
+                                    <x-ui-label for="kelurahan" required>Kelurahan / Desa</x-ui-label>
                                     <div class="mt-2">
-                                        <x-ui-input name="kelurahan" id="kelurahan" :value="old('kelurahan')" placeholder="Nama kelurahan/desa (opsional)" />
+                                        <x-ui-input name="kelurahan" id="kelurahan" :value="old('kelurahan')" required placeholder="Nama kelurahan/desa" />
                                     </div>
-                                    <p class="mt-1 text-xs text-gray-400">Opsional — isi nama kelurahan/desa tempat tinggal.</p>
+                                    @error('kelurahan')<p class="mt-1.5 text-sm text-red-600">{{ $message }}</p>@enderror
                                 </div>
                             </div>
 
@@ -297,180 +258,6 @@
                                     <x-ui-input name="tahun_lulus" id="tahun_lulus" :value="old('tahun_lulus')" inputmode="numeric" maxlength="4" placeholder="2026" />
                                 </div>
                                 @error('tahun_lulus')<p class="mt-1.5 text-sm text-red-600">{{ $message }}</p>@enderror
-                            </div>
-
-                            <div>
-                                <x-ui-label for="nama_ayah">Nama Ayah</x-ui-label>
-                                <div class="mt-2">
-                                    <x-ui-input name="nama_ayah" id="nama_ayah" :value="old('nama_ayah')" placeholder="Nama ayah" />
-                                </div>
-                            </div>
-
-                            <div>
-                                <x-ui-label for="nama_ibu_kandung" required>Nama Ibu Kandung</x-ui-label>
-                                <div class="mt-2">
-                                    <x-ui-input name="nama_ibu_kandung" id="nama_ibu_kandung" :value="old('nama_ibu_kandung')" required placeholder="Nama ibu kandung" />
-                                </div>
-                                @error('nama_ibu_kandung')<p class="mt-1.5 text-sm text-red-600">{{ $message }}</p>@enderror
-                            </div>
-
-                            <div>
-                                <x-ui-label for="nama_wali">Nama Wali</x-ui-label>
-                                <div class="mt-2">
-                                    <x-ui-input name="nama_wali" id="nama_wali" :value="old('nama_wali')" placeholder="Nama wali (jika ada)" />
-                                </div>
-                            </div>
-
-                            <div>
-                                <x-ui-label for="nik_ayah">NIK Ayah</x-ui-label>
-                                <div class="mt-2">
-                                    <x-ui-input name="nik_ayah" id="nik_ayah" :value="old('nik_ayah')" inputmode="numeric" maxlength="16" placeholder="16 digit NIK ayah" />
-                                </div>
-                                @error('nik_ayah')<p class="mt-1.5 text-sm text-red-600">{{ $message }}</p>@enderror
-                            </div>
-
-                            <div>
-                                <x-ui-label for="nik_ibu">NIK Ibu</x-ui-label>
-                                <div class="mt-2">
-                                    <x-ui-input name="nik_ibu" id="nik_ibu" :value="old('nik_ibu')" inputmode="numeric" maxlength="16" placeholder="16 digit NIK ibu" />
-                                </div>
-                                @error('nik_ibu')<p class="mt-1.5 text-sm text-red-600">{{ $message }}</p>@enderror
-                            </div>
-
-                            <div>
-                                <x-ui-label for="nik_wali">NIK Wali</x-ui-label>
-                                <div class="mt-2">
-                                    <x-ui-input name="nik_wali" id="nik_wali" :value="old('nik_wali')" inputmode="numeric" maxlength="16" placeholder="16 digit NIK wali" />
-                                </div>
-                                @error('nik_wali')<p class="mt-1.5 text-sm text-red-600">{{ $message }}</p>@enderror
-                            </div>
-
-                            <div>
-                                <x-ui-label for="pekerjaan_ayah">Pekerjaan Ayah</x-ui-label>
-                                <div class="mt-2">
-                                    <x-ui-select name="pekerjaan_ayah" id="pekerjaan_ayah">
-                                        <option value="">-- Pilih --</option>
-                                        @foreach ($refs['pekerjaan'] as $r)
-                                            <option value="{{ $r['id_pekerjaan'] }}" @selected((string) old('pekerjaan_ayah') === (string) $r['id_pekerjaan'])>{{ $r['nama_pekerjaan'] }}</option>
-                                        @endforeach
-                                    </x-ui-select>
-                                </div>
-                            </div>
-
-                            <div>
-                                <x-ui-label for="penghasilan_ayah">Penghasilan Ayah</x-ui-label>
-                                <div class="mt-2">
-                                    <x-ui-select name="penghasilan_ayah" id="penghasilan_ayah">
-                                        <option value="">-- Pilih --</option>
-                                        @foreach ($refs['penghasilan'] as $r)
-                                            <option value="{{ $r['id_penghasilan'] }}" @selected((string) old('penghasilan_ayah') === (string) $r['id_penghasilan'])>{{ $r['nama_penghasilan'] }}</option>
-                                        @endforeach
-                                    </x-ui-select>
-                                </div>
-                            </div>
-
-                            <div>
-                                <x-ui-label for="pekerjaan_ibu">Pekerjaan Ibu</x-ui-label>
-                                <div class="mt-2">
-                                    <x-ui-select name="pekerjaan_ibu" id="pekerjaan_ibu">
-                                        <option value="">-- Pilih --</option>
-                                        @foreach ($refs['pekerjaan'] as $r)
-                                            <option value="{{ $r['id_pekerjaan'] }}" @selected((string) old('pekerjaan_ibu') === (string) $r['id_pekerjaan'])>{{ $r['nama_pekerjaan'] }}</option>
-                                        @endforeach
-                                    </x-ui-select>
-                                </div>
-                            </div>
-
-                            <div>
-                                <x-ui-label for="penghasilan_ibu">Penghasilan Ibu</x-ui-label>
-                                <div class="mt-2">
-                                    <x-ui-select name="penghasilan_ibu" id="penghasilan_ibu">
-                                        <option value="">-- Pilih --</option>
-                                        @foreach ($refs['penghasilan'] as $r)
-                                            <option value="{{ $r['id_penghasilan'] }}" @selected((string) old('penghasilan_ibu') === (string) $r['id_penghasilan'])>{{ $r['nama_penghasilan'] }}</option>
-                                        @endforeach
-                                    </x-ui-select>
-                                </div>
-                            </div>
-
-                            <div>
-                                <x-ui-label for="pekerjaan_wali">Pekerjaan Wali</x-ui-label>
-                                <div class="mt-2">
-                                    <x-ui-select name="pekerjaan_wali" id="pekerjaan_wali">
-                                        <option value="">-- Pilih --</option>
-                                        @foreach ($refs['pekerjaan'] as $r)
-                                            <option value="{{ $r['id_pekerjaan'] }}" @selected((string) old('pekerjaan_wali') === (string) $r['id_pekerjaan'])>{{ $r['nama_pekerjaan'] }}</option>
-                                        @endforeach
-                                    </x-ui-select>
-                                </div>
-                            </div>
-
-                            <div>
-                                <x-ui-label for="penghasilan_wali">Penghasilan Wali</x-ui-label>
-                                <div class="mt-2">
-                                    <x-ui-select name="penghasilan_wali" id="penghasilan_wali">
-                                        <option value="">-- Pilih --</option>
-                                        @foreach ($refs['penghasilan'] as $r)
-                                            <option value="{{ $r['id_penghasilan'] }}" @selected((string) old('penghasilan_wali') === (string) $r['id_penghasilan'])>{{ $r['nama_penghasilan'] }}</option>
-                                        @endforeach
-                                    </x-ui-select>
-                                </div>
-                            </div>
-
-                            <div>
-                                <x-ui-label for="golongan_darah">Golongan Darah</x-ui-label>
-                                <div class="mt-2">
-                                    <x-ui-select name="golongan_darah" id="golongan_darah">
-                                        <option value="">-- Pilih --</option>
-                                        @foreach (['A', 'B', 'AB', 'O', '-'] as $g)
-                                            <option value="{{ $g }}" @selected(old('golongan_darah') === $g)>{{ $g === '-' ? 'Tidak Tahu' : $g }}</option>
-                                        @endforeach
-                                    </x-ui-select>
-                                </div>
-                            </div>
-
-                            <div>
-                                <x-ui-label for="status_perkawinan">Status Perkawinan</x-ui-label>
-                                <div class="mt-2">
-                                    <x-ui-select name="status_perkawinan" id="status_perkawinan">
-                                        <option value="">-- Pilih --</option>
-                                        @foreach (['belum_kawin' => 'Belum Kawin', 'kawin' => 'Kawin', 'cerai_hidup' => 'Cerai Hidup', 'cerai_mati' => 'Cerai Mati'] as $val => $label)
-                                            <option value="{{ $val }}" @selected(old('status_perkawinan') === $val)>{{ $label }}</option>
-                                        @endforeach
-                                    </x-ui-select>
-                                </div>
-                            </div>
-
-                            <div>
-                                <x-ui-label for="kebutuhan_khusus">Kebutuhan Khusus</x-ui-label>
-                                <div class="mt-2">
-                                    <x-ui-select name="kebutuhan_khusus" id="kebutuhan_khusus">
-                                        <option value="">-- Tidak Ada --</option>
-                                        @foreach (['Tunanetra', 'Tunarungu', 'Tunadaksa', 'Tunagrahita', 'Kesulitan Belajar', 'Lainnya'] as $k)
-                                            <option value="{{ $k }}" @selected(old('kebutuhan_khusus') === $k)>{{ $k }}</option>
-                                        @endforeach
-                                    </x-ui-select>
-                                </div>
-                            </div>
-
-                            <div class="md:col-span-2">
-                                <label class="flex cursor-pointer select-none items-start gap-3 rounded-lg border border-gray-200 px-4 py-3">
-                                    <input type="checkbox" name="penerima_kps" id="penerima_kps" value="1" x-model="penerimaKps"
-                                           @checked(old('penerima_kps'))
-                                           class="peer mt-0.5 h-5 w-5 shrink-0 rounded-md border-gray-300 text-indigo-600 focus:ring-indigo-600">
-                                    <span>
-                                        <span class="block text-sm font-medium text-gray-900">Penerima KPS / KIP-K</span>
-                                        <span class="block text-xs text-gray-500">Centang jika Anda pemegang Kartu Perlindungan Sosial / KIP Kuliah.</span>
-                                    </span>
-                                </label>
-                            </div>
-
-                            <div x-show="penerimaKps" x-cloak class="md:col-span-2">
-                                <x-ui-label for="nomor_kps">Nomor KPS / KIP-K</x-ui-label>
-                                <div class="mt-2">
-                                    <x-ui-input name="nomor_kps" id="nomor_kps" :value="old('nomor_kps')" placeholder="Nomor kartu KPS/KIP-K" />
-                                </div>
-                                @error('nomor_kps')<p class="mt-1.5 text-sm text-red-600">{{ $message }}</p>@enderror
                             </div>
                         </div>
                     </div>
@@ -690,7 +477,6 @@
             promo: @json($promoList),
             prodi1: '', kelas1: '', prodi2: '', kelas2: '',
             kewarganegaraan: "{{ old('kewarganegaraan', 'WNI') }}",
-            penerimaKps: {{ old('penerima_kps') ? 'true' : 'false' }},
             dokumen: @json($dokumen),
             syarat: @json($syaratMap),
             wilayah: { provinsi: null, kota: null, kecamatan: null },

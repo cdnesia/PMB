@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Mahasiswa;
 
 use App\Http\Controllers\Controller;
+use App\Models\Agama;
 use App\Models\DaftarUlang;
 use App\Models\DokumenPendaftar;
 use App\Models\DokumenPersyaratan;
 use App\Models\Gelombang;
 use App\Models\Jalur;
 use App\Models\JalurKelas;
+use App\Models\JenisKelamin;
 use App\Models\Kuota;
 use App\Models\Pendaftar;
 use App\Models\Pendaftaran;
@@ -19,7 +21,6 @@ use App\Models\Promo;
 use App\Models\SyaratJalur;
 use App\Models\TahunPenerimaan;
 use App\Models\Wilayah;
-use App\Services\NeoFeederService;
 use App\Services\PendaftaranNotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -178,34 +179,28 @@ class PendaftaranController extends Controller
     }
 
     /**
-     * Ambil seluruh kamus referensi NEO Feeder yang dipakai di form biodata.
-     * Bila web service tidak terjangkau, kembalikan array kosong (tanpa error).
+     * Ambil kamus referensi biodata dari database lokal.
+     * Data referensi (contoh: agama) diinkronkan dari NEO Feeder oleh admin,
+     * sehingga halaman pendaftaran tidak perlu memanggil NEO Feeder secara langsung.
      */
     private function neoReferences(): array
     {
-        try {
-            $neo = app(NeoFeederService::class);
-
-            return [
-                'agama' => $neo->getAgama(),
-                'jenis_tinggal' => $neo->getJenisTinggal(),
-                'alat_transportasi' => $neo->getAlatTransportasi(),
-                'pembiayaan' => $neo->getPembiayaan(),
-                'pekerjaan' => $neo->getPekerjaan(),
-                'penghasilan' => $neo->getPenghasilan(),
-            ];
-        } catch (\Throwable $e) {
-            report($e);
-
-            return [
-                'agama' => [],
-                'jenis_tinggal' => [],
-                'alat_transportasi' => [],
-                'pembiayaan' => [],
-                'pekerjaan' => [],
-                'penghasilan' => [],
-            ];
-        }
+        return [
+            'agama' => Agama::orderBy('kode')
+                ->get()
+                ->map(fn (Agama $a) => [
+                    'id_agama' => $a->kode,
+                    'nama_agama' => $a->nama,
+                ])
+                ->all(),
+            'jenis_kelamin' => JenisKelamin::orderBy('kode')
+                ->get()
+                ->map(fn (JenisKelamin $j) => [
+                    'id_jenis_kelamin' => $j->kode,
+                    'nama_jenis_kelamin' => $j->nama,
+                ])
+                ->all(),
+        ];
     }
 
     private function docShape(DokumenPersyaratan $d): array
@@ -264,33 +259,13 @@ class PendaftaranController extends Controller
             'rt' => 'nullable|string|max:5',
             'rw' => 'nullable|string|max:5',
             'dusun' => 'nullable|string|max:100',
-            'jenis_tinggal' => 'nullable|string|max:10',
-            'alat_transportasi' => 'nullable|string|max:10',
-            'pembiayaan' => 'nullable|string|max:10',
-            'provinsi' => 'nullable|required_if:kewarganegaraan,WNI|exists:wilayah,id',
-            'kota' => 'nullable|required_if:kewarganegaraan,WNI|exists:wilayah,id',
-            'kecamatan' => 'nullable|required_if:kewarganegaraan,WNI|exists:wilayah,id',
-            'kelurahan' => 'nullable|string|max:100',
+            'provinsi' => 'required|exists:wilayah,id',
+            'kota' => 'required|exists:wilayah,id',
+            'kecamatan' => 'required|exists:wilayah,id',
+            'kelurahan' => 'required|string|max:100',
             'kode_pos' => 'nullable|digits:5',
             'asal_sekolah' => 'required|string|max:150',
             'tahun_lulus' => 'nullable|digits:4',
-            'nama_ayah' => 'nullable|string|max:100',
-            'nama_ibu_kandung' => 'required|string|max:100',
-            'nama_wali' => 'nullable|string|max:100',
-            'nik_ayah' => 'nullable|digits:16',
-            'nik_ibu' => 'nullable|digits:16',
-            'nik_wali' => 'nullable|digits:16',
-            'pekerjaan_ayah' => 'nullable|integer',
-            'pekerjaan_ibu' => 'nullable|integer',
-            'pekerjaan_wali' => 'nullable|integer',
-            'penghasilan_ayah' => 'nullable|integer',
-            'penghasilan_ibu' => 'nullable|integer',
-            'penghasilan_wali' => 'nullable|integer',
-            'golongan_darah' => 'nullable|in:A,B,AB,O,-',
-            'status_perkawinan' => 'nullable|in:belum_kawin,kawin,cerai_hidup,cerai_mati',
-            'kebutuhan_khusus' => 'nullable|string|max:50',
-            'penerima_kps' => 'nullable|boolean',
-            'nomor_kps' => 'nullable|string|max:50',
         ]);
 
         // Pastikan "negara" yang dipilih benar-benar level negara (untuk WNA).
@@ -426,11 +401,10 @@ class PendaftaranController extends Controller
                 ]);
 
                 // Simpan biodata pendaftar
-                $isWni = $request->kewarganegaraan === 'WNI';
-                $wProv = $isWni ? Wilayah::find($request->provinsi) : null;
-                $wKota = $isWni ? Wilayah::find($request->kota) : null;
-                $wKec = $isWni ? Wilayah::find($request->kecamatan) : null;
-                $wNegara = ! $isWni ? Wilayah::find($request->negara) : null;
+                $wProv = Wilayah::find($request->provinsi);
+                $wKota = Wilayah::find($request->kota);
+                $wKec = Wilayah::find($request->kecamatan);
+                $wNegara = $request->kewarganegaraan === 'WNA' ? Wilayah::find($request->negara) : null;
 
                 Pendaftar::create([
                     'pendaftaran_id' => $pendaftaran->id,
@@ -449,46 +423,17 @@ class PendaftaranController extends Controller
                     'rt' => $request->rt,
                     'rw' => $request->rw,
                     'dusun' => $request->dusun,
-                    'jenis_tinggal' => $this->refName($refs['jenis_tinggal'], 'id_jenis_tinggal', 'nama_jenis_tinggal', $request->jenis_tinggal),
-                    'jenis_tinggal_kode' => $request->jenis_tinggal,
-                    'alat_transportasi' => $this->refName($refs['alat_transportasi'], 'id_alat_transportasi', 'nama_alat_transportasi', $request->alat_transportasi),
-                    'alat_transportasi_kode' => $request->alat_transportasi,
-                    'pembiayaan' => $this->refName($refs['pembiayaan'], 'id_pembiayaan', 'nama_pembiayaan', $request->pembiayaan),
-                    'pembiayaan_kode' => $request->pembiayaan,
                     'provinsi' => $wProv?->nama,
                     'provinsi_kode' => $wProv?->kode,
                     'kota' => $wKota?->nama,
                     'kota_kode' => $wKota?->kode,
                     'kecamatan' => $wKec?->nama,
                     'kecamatan_kode' => $wKec?->kode,
-                    'kelurahan' => $isWni ? $request->kelurahan : null,
+                    'kelurahan' => $request->kelurahan,
                     'kelurahan_kode' => null,
                     'kode_pos' => $request->kode_pos,
                     'asal_sekolah' => $request->asal_sekolah,
                     'tahun_lulus' => $request->tahun_lulus,
-                    'nama_ayah' => $request->nama_ayah,
-                    'nama_ibu_kandung' => $request->nama_ibu_kandung,
-                    'nama_wali' => $request->nama_wali,
-                    'nik_ayah' => $request->nik_ayah,
-                    'nik_ibu' => $request->nik_ibu,
-                    'nik_wali' => $request->nik_wali,
-                    'pekerjaan_ayah' => $this->refName($refs['pekerjaan'], 'id_pekerjaan', 'nama_pekerjaan', $request->pekerjaan_ayah),
-                    'pekerjaan_ayah_kode' => $request->pekerjaan_ayah,
-                    'pekerjaan_ibu' => $this->refName($refs['pekerjaan'], 'id_pekerjaan', 'nama_pekerjaan', $request->pekerjaan_ibu),
-                    'pekerjaan_ibu_kode' => $request->pekerjaan_ibu,
-                    'pekerjaan_wali' => $this->refName($refs['pekerjaan'], 'id_pekerjaan', 'nama_pekerjaan', $request->pekerjaan_wali),
-                    'pekerjaan_wali_kode' => $request->pekerjaan_wali,
-                    'penghasilan_ayah' => $this->refName($refs['penghasilan'], 'id_penghasilan', 'nama_penghasilan', $request->penghasilan_ayah),
-                    'penghasilan_ayah_kode' => $request->penghasilan_ayah,
-                    'penghasilan_ibu' => $this->refName($refs['penghasilan'], 'id_penghasilan', 'nama_penghasilan', $request->penghasilan_ibu),
-                    'penghasilan_ibu_kode' => $request->penghasilan_ibu,
-                    'penghasilan_wali' => $this->refName($refs['penghasilan'], 'id_penghasilan', 'nama_penghasilan', $request->penghasilan_wali),
-                    'penghasilan_wali_kode' => $request->penghasilan_wali,
-                    'golongan_darah' => $request->golongan_darah,
-                    'status_perkawinan' => $request->status_perkawinan,
-                    'kebutuhan_khusus' => $request->kebutuhan_khusus,
-                    'penerima_kps' => $request->boolean('penerima_kps'),
-                    'nomor_kps' => $request->boolean('penerima_kps') ? $request->nomor_kps : null,
                 ]);
 
                 foreach ($pilihan as $p) {

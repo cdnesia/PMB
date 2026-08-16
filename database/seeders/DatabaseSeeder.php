@@ -13,6 +13,8 @@ class DatabaseSeeder extends Seeder
             ProdiSeeder::class,
             DemoDataSeeder::class,
             WilayahSeeder::class,
+            AgamaSeeder::class,
+            JenisKelaminSeeder::class,
         ]);
     }
 }

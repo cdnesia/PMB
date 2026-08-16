@@ -34,4 +34,25 @@
             </div>
         </x-ui-card>
     </form>
+
+    <x-ui-card class="mt-6">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+            <div>
+                <h3 class="text-sm font-semibold text-gray-900">Sinkronisasi Data NEO Feeder</h3>
+                <p class="mt-1 text-xs text-gray-500">
+                    Perbarui data referensi Agama dan Wilayah dari NEO Feeder ke database lokal.
+                    Data ini dipakai pada formulir pendaftaran sehingga tidak perlu memanggil NEO Feeder langsung.
+                </p>
+            </div>
+            <form method="POST" action="{{ route('admin.pengaturan.sync-neofeeder') }}" class="flex flex-wrap items-center gap-3">
+                @csrf
+                <label class="flex cursor-pointer select-none items-center gap-2 text-sm text-gray-600">
+                    <input type="checkbox" name="fresh" value="1"
+                           class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
+                    Hapus wilayah lama sebelum sinkron
+                </label>
+                <x-ui-button variant="secondary" icon="adjust">Sinkronkan Sekarang</x-ui-button>
+            </form>
+        </div>
+    </x-ui-card>
 @endsection

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pengaturan;
+use App\Services\NeoFeederSyncService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -48,5 +49,33 @@ class PengaturanController extends Controller
         }
 
         return redirect()->route('admin.pengaturan.index')->with('success', 'Pengaturan SEO berhasil disimpan.');
+    }
+
+    /**
+     * Sinkronkan data referensi (agama & wilayah) dari NEO Feeder ke database
+     * lokal, sehingga halaman pendaftaran tidak perlu memanggil NEO Feeder.
+     */
+    public function syncNeoFeeder(Request $request, NeoFeederSyncService $sync): RedirectResponse
+    {
+        try {
+            $agama = $sync->syncAgama();
+            $wilayah = $sync->syncWilayah($request->boolean('fresh'));
+        } catch (\Throwable $e) {
+            report($e);
+
+            return redirect()
+                ->route('admin.pengaturan.index')
+                ->with('error', 'Gagal sinkronisasi NEO Feeder: '.$e->getMessage());
+        }
+
+        $message = sprintf(
+            'Sinkronisasi berhasil. Agama: %d baru, %d diperbarui. Wilayah: %d baru, %d diperbarui.',
+            $agama['created'],
+            $agama['updated'],
+            $wilayah['created'],
+            $wilayah['updated']
+        );
+
+        return redirect()->route('admin.pengaturan.index')->with('success', $message);
     }
 }

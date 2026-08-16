@@ -50,6 +50,7 @@ Route::middleware(['auth', 'role:super-admin|admin-pmb'])->prefix('admin')->name
 
     Route::get('pengaturan', [PengaturanController::class, 'index'])->name('pengaturan.index');
     Route::put('pengaturan', [PengaturanController::class, 'update'])->name('pengaturan.update');
+    Route::post('pengaturan/sync-neofeeder', [PengaturanController::class, 'syncNeoFeeder'])->name('pengaturan.sync-neofeeder');
 
     Route::resource('tahun', TahunPenerimaanController::class)->except('show');
     Route::resource('jalur', JalurController::class)->except('show');

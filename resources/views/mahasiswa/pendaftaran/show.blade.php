@@ -205,18 +205,6 @@
                         <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Kewarganegaraan</dt>
                         <dd class="mt-1 text-sm text-gray-900">{{ $p->kewarganegaraan ?? 'WNI' }}{{ $p->negara ? ' — '.$p->negara : '' }}@if ($p->negara_kode) <span class="font-mono text-xs text-gray-400">({{ $p->negara_kode }})</span>@endif</dd>
                     </div>
-                    <div class="rounded-lg bg-gray-50 px-4 py-3">
-                        <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Jenis Tinggal</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ $p->jenis_tinggal ?? '—' }}@if ($p->jenis_tinggal_kode) <span class="font-mono text-xs text-gray-400">({{ $p->jenis_tinggal_kode }})</span>@endif</dd>
-                    </div>
-                    <div class="rounded-lg bg-gray-50 px-4 py-3">
-                        <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Alat Transportasi</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ $p->alat_transportasi ?? '—' }}@if ($p->alat_transportasi_kode) <span class="font-mono text-xs text-gray-400">({{ $p->alat_transportasi_kode }})</span>@endif</dd>
-                    </div>
-                    <div class="rounded-lg bg-gray-50 px-4 py-3">
-                        <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Pembiayaan</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ $p->pembiayaan ?? '—' }}@if ($p->pembiayaan_kode) <span class="font-mono text-xs text-gray-400">({{ $p->pembiayaan_kode }})</span>@endif</dd>
-                    </div>
                     <div class="rounded-lg bg-gray-50 px-4 py-3 sm:col-span-2">
                         <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Alamat</dt>
                         <dd class="mt-1 text-sm text-gray-900">
@@ -238,65 +226,6 @@
                         <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Asal Sekolah</dt>
                         <dd class="mt-1 text-sm text-gray-900">{{ $p->asal_sekolah }}@if ($p->tahun_lulus) <span class="text-gray-500">(lulus {{ $p->tahun_lulus }})</span>@endif</dd>
                     </div>
-                    <div class="rounded-lg bg-gray-50 px-4 py-3">
-                        <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Golongan Darah</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ $p->golongan_darah ?: '—' }}</dd>
-                    </div>
-                    <div class="rounded-lg bg-gray-50 px-4 py-3">
-                        <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Nama Ayah</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ $p->nama_ayah ?? '—' }}@if ($p->nik_ayah) <span class="font-mono text-xs text-gray-500">({{ $p->nik_ayah }})</span>@endif</dd>
-                    </div>
-                    <div class="rounded-lg bg-gray-50 px-4 py-3">
-                        <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Nama Ibu Kandung</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ $p->nama_ibu_kandung ?? '—' }}@if ($p->nik_ibu) <span class="font-mono text-xs text-gray-500">({{ $p->nik_ibu }})</span>@endif</dd>
-                    </div>
-                    @if ($p->pekerjaan_ayah || $p->pekerjaan_ibu)
-                        <div class="rounded-lg bg-gray-50 px-4 py-3">
-                            <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Pekerjaan Ayah / Ibu</dt>
-                            <dd class="mt-1 text-sm text-gray-900">
-                                {{ $p->pekerjaan_ayah ?: '—' }}@if ($p->pekerjaan_ayah_kode) <span class="font-mono text-xs text-gray-400">({{ $p->pekerjaan_ayah_kode }})</span>@endif
-                                / {{ $p->pekerjaan_ibu ?: '—' }}@if ($p->pekerjaan_ibu_kode) <span class="font-mono text-xs text-gray-400">({{ $p->pekerjaan_ibu_kode }})</span>@endif
-                            </dd>
-                        </div>
-                    @endif
-                    @if ($p->penghasilan_ayah || $p->penghasilan_ibu)
-                        <div class="rounded-lg bg-gray-50 px-4 py-3">
-                            <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Penghasilan Ayah / Ibu</dt>
-                            <dd class="mt-1 text-sm text-gray-900">
-                                {{ $p->penghasilan_ayah ?: '—' }}@if ($p->penghasilan_ayah_kode) <span class="font-mono text-xs text-gray-400">({{ $p->penghasilan_ayah_kode }})</span>@endif
-                                / {{ $p->penghasilan_ibu ?: '—' }}@if ($p->penghasilan_ibu_kode) <span class="font-mono text-xs text-gray-400">({{ $p->penghasilan_ibu_kode }})</span>@endif
-                            </dd>
-                        </div>
-                    @endif
-                    @if ($p->nama_wali)
-                        <div class="rounded-lg bg-gray-50 px-4 py-3">
-                            <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Nama Wali</dt>
-                            <dd class="mt-1 text-sm text-gray-900">{{ $p->nama_wali }}@if ($p->nik_wali) <span class="font-mono text-xs text-gray-500">({{ $p->nik_wali }})</span>@endif</dd>
-                        </div>
-                        @if ($p->pekerjaan_wali || $p->penghasilan_wali)
-                            <div class="rounded-lg bg-gray-50 px-4 py-3">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Pekerjaan / Penghasilan Wali</dt>
-                                <dd class="mt-1 text-sm text-gray-900">
-                                    {{ $p->pekerjaan_wali ?: '—' }}@if ($p->pekerjaan_wali_kode) <span class="font-mono text-xs text-gray-400">({{ $p->pekerjaan_wali_kode }})</span>@endif
-                                    / {{ $p->penghasilan_wali ?: '—' }}@if ($p->penghasilan_wali_kode) <span class="font-mono text-xs text-gray-400">({{ $p->penghasilan_wali_kode }})</span>@endif
-                                </dd>
-                            </div>
-                        @endif
-                    @endif
-                    <div class="rounded-lg bg-gray-50 px-4 py-3">
-                        <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Status Perkawinan</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ $p->status_perkawinan ? str_replace('_', ' ', ucfirst($p->status_perkawinan)) : '—' }}</dd>
-                    </div>
-                    <div class="rounded-lg bg-gray-50 px-4 py-3">
-                        <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Kebutuhan Khusus</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ $p->kebutuhan_khusus ?: '—' }}</dd>
-                    </div>
-                    @if ($p->penerima_kps)
-                        <div class="rounded-lg bg-gray-50 px-4 py-3 sm:col-span-2">
-                            <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Penerima KPS / KIP-K</dt>
-                            <dd class="mt-1 text-sm text-gray-900">Ya{{ $p->nomor_kps ? ' · Nomor: '.$p->nomor_kps : '' }}</dd>
-                        </div>
-                    @endif
                 </dl>
             @endif
 
