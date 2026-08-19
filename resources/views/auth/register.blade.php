@@ -4,7 +4,7 @@
         <p class="mt-2 text-sm leading-relaxed text-gray-500">Daftar untuk memulai perjalanan seleksi Anda.</p>
     </div>
 
-    <form method="POST" action="{{ route('register') }}" class="space-y-5">
+    <form method="POST" action="{{ route('register') }}" class="space-y-5" x-data="{}">
         @csrf
 
         <div>
@@ -34,6 +34,38 @@
             </div>
             <p class="mt-1.5 text-xs text-gray-400">Gunakan nomor aktif untuk menerima informasi seleksi.</p>
             @error('phone')
+                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <div>
+            <x-ui-label for="kode_referral">Kode Referral</x-ui-label>
+            <div class="mt-2">
+                <select name="kode_referral" id="kode_referral" x-select2="{
+                        ajax: {
+                            url: '{{ route('referral.search') }}',
+                            dataType: 'json',
+                            delay: 300,
+                            data: (params) => ({ q: params.term }),
+                            processResults: (data) => data,
+                        },
+                        minimumInputLength: 2,
+                        allowClear: true,
+                        language: {
+                            searching: () => 'Mencari...',
+                            inputTooShort: () => 'Ketik minimal 2 karakter',
+                            noResults: () => 'Kode referral tidak ditemukan',
+                        },
+                        placeholder: 'Ketik untuk mencari kode referral (opsional)',
+                    }"
+                    class="block w-full rounded-lg border-0 px-3 py-2.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                    @if (old('kode_referral'))
+                        <option value="{{ old('kode_referral') }}" selected>{{ old('kode_referral') }}</option>
+                    @endif
+                </select>
+            </div>
+            <p class="mt-1.5 text-xs text-gray-400">Punya kode dari karyawan atau mitra sekolah? Ketik kodenya, lalu pilih dari daftar.</p>
+            @error('kode_referral')
                 <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
             @enderror
         </div>

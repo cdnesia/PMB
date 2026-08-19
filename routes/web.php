@@ -11,11 +11,15 @@ use App\Http\Controllers\Admin\PendaftarController;
 use App\Http\Controllers\Admin\PengaturanController;
 use App\Http\Controllers\Admin\ProdiController;
 use App\Http\Controllers\Admin\PromoController;
+use App\Http\Controllers\Admin\ReferrerController as AdminReferrerController;
 use App\Http\Controllers\Admin\SettingProdiController;
 use App\Http\Controllers\Admin\TahunPenerimaanController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Mahasiswa\DashboardController as MahasiswaDashboardController;
 use App\Http\Controllers\Mahasiswa\PendaftaranController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReferralController;
+use App\Http\Controllers\Referrer\DashboardController as ReferrerDashboardController;
 use App\Http\Controllers\WilayahController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -26,12 +30,21 @@ Route::get('/', function () {
         : redirect()->route('login');
 });
 
+// Pencarian kode referral untuk dropdown di form registrasi (publik, tanpa login)
+Route::get('/referral/search', [ReferralController::class, 'search'])->name('referral.search')->middleware('throttle:30,1');
+
 Route::get('/dashboard', function () {
     $user = Auth::user();
 
-    return $user->hasRole('mahasiswa')
-        ? redirect()->route('mahasiswa.dashboard')
-        : redirect()->route('admin.dashboard');
+    if ($user->hasRole('mahasiswa')) {
+        return redirect()->route('mahasiswa.dashboard');
+    }
+
+    if ($user->hasAnyRole(['karyawan', 'mitra'])) {
+        return redirect()->route('referrer.dashboard');
+    }
+
+    return redirect()->route('admin.dashboard');
 })->middleware(['auth'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -74,6 +87,20 @@ Route::middleware(['auth', 'role:super-admin|admin-pmb'])->prefix('admin')->name
     Route::get('setting-prodi', [SettingProdiController::class, 'index'])->name('setting-prodi.index');
     Route::get('setting-prodi/{prodi}/edit', [SettingProdiController::class, 'edit'])->name('setting-prodi.edit');
     Route::put('setting-prodi/{prodi}', [SettingProdiController::class, 'update'])->name('setting-prodi.update');
+
+    Route::middleware('permission:kelola-referrer')->group(function () {
+        Route::get('referrer', [AdminReferrerController::class, 'index'])->name('referrer.index');
+        Route::get('referrer/{referrer}', [AdminReferrerController::class, 'show'])->name('referrer.show');
+    });
+
+    Route::middleware('permission:kelola-user')->group(function () {
+        Route::resource('user', AdminUserController::class)->except('show');
+    });
+});
+
+// ===== Area Referrer (Karyawan & Mitra) =====
+Route::middleware(['auth', 'role:karyawan|mitra'])->prefix('referrer')->name('referrer.')->group(function () {
+    Route::get('/dashboard', [ReferrerDashboardController::class, 'index'])->name('dashboard');
 });
 
 // ===== Area Mahasiswa =====

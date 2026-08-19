@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>@yield('title', 'Dashboard') · {{ config('app.name') }}</title>
+        <title>@yield('title', 'Referral') · {{ config('app.name') }}</title>
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
@@ -28,8 +28,8 @@
                         </svg>
                     </div>
                     <div>
-                        <div class="text-sm font-bold text-white leading-tight">PMB Panel</div>
-                        <div class="text-[11px] text-slate-400">Penerimaan Mahasiswa Baru</div>
+                        <div class="text-sm font-bold text-white leading-tight">PMB Referral</div>
+                        <div class="text-[11px] text-slate-400">Program Rujukan Mahasiswa</div>
                     </div>
                 </div>
 
@@ -46,75 +46,17 @@
                     </div>
                 </div>
 
-                @php
-                    $navGroups = [
-                        [
-                            'label' => 'Pendaftaran',
-                            'items' => [
-                                'Pendaftar' => ['icon' => 'user', 'route' => 'admin.pendaftar.index', 'match' => 'admin.pendaftar.*'],
-                            ],
-                        ],
-                        [
-                            'label' => 'Pengaturan',
-                            'items' => [
-                                'Tahun Penerimaan' => ['icon' => 'calendar', 'route' => 'admin.tahun.index', 'match' => 'admin.tahun.*'],
-                                'Gelombang' => ['icon' => 'adjust', 'route' => 'admin.gelombang.index', 'match' => 'admin.gelombang.*'],
-                                'Jalur & Biaya' => ['icon' => 'route', 'route' => 'admin.jalur.index', 'match' => 'admin.jalur.*'],
-                                'Program Studi' => ['icon' => 'academic', 'route' => 'admin.prodi.index', 'match' => 'admin.prodi.*'],
-                                'Kelas Perkuliahan' => ['icon' => 'square-stack', 'route' => 'admin.kelas.index', 'match' => 'admin.kelas.*'],
-                                'Kuota Prodi' => ['icon' => 'chart', 'route' => 'admin.kuota.index', 'match' => 'admin.kuota.*'],
-                                'Promo' => ['icon' => 'credit-card', 'route' => 'admin.promo.index', 'match' => 'admin.promo.*'],
-                                'Setting Prodi' => ['icon' => 'adjust', 'route' => 'admin.setting-prodi.index', 'match' => 'admin.setting-prodi.*'],
-                                'Dokumen Persyaratan' => ['icon' => 'document', 'route' => 'admin.dokumen.index', 'match' => 'admin.dokumen.*'],
-                            ],
-                        ],
-                        [
-                            'label' => 'Laporan',
-                            'items' => [
-                                'Rekap Pendaftaran' => ['icon' => 'chart', 'route' => 'admin.laporan.index', 'match' => 'admin.laporan.*'],
-                                'Rekap Referrer' => ['icon' => 'chart', 'route' => 'admin.referrer.index', 'match' => 'admin.referrer.*'],
-                            ],
-                        ],
-                        [
-                            'label' => 'Sistem',
-                            'items' => array_filter([
-                                'Manajemen User' => Auth::user()->can('kelola-user') ? ['icon' => 'user', 'route' => 'admin.user.index', 'match' => 'admin.user.*'] : null,
-                                'Pengaturan Umum' => ['icon' => 'adjust', 'route' => 'admin.pengaturan.index', 'match' => 'admin.pengaturan.*'],
-                            ]),
-                        ],
-                    ];
-                @endphp
-
                 <nav class="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-                    {{-- Dashboard (selalu di atas, tanpa grup) --}}
-                    <a href="{{ route('admin.dashboard') }}"
+                    <a href="{{ route('referrer.dashboard') }}"
                        class="group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition
-                              {{ request()->routeIs('admin.dashboard') ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                              {{ request()->routeIs('referrer.dashboard') ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
                         <x-icon name="dashboard" class="h-5 w-5 shrink-0" />
                         Dashboard
-                        @if (request()->routeIs('admin.dashboard'))
+                        @if (request()->routeIs('referrer.dashboard'))
                             <span class="ml-auto h-1.5 w-1.5 rounded-full bg-white/80"></span>
                         @endif
                     </a>
-
-                    @foreach ($navGroups as $group)
-                        <div class="px-3 pb-1 pt-4 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                            {{ $group['label'] }}
-                        </div>
-                        @foreach ($group['items'] as $label => $item)
-                            <a href="{{ route($item['route']) }}"
-                               class="group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition
-                                      {{ request()->routeIs($item['match']) ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
-                                <x-icon :name="$item['icon']" class="h-5 w-5 shrink-0" />
-                                {{ $label }}
-                                @if (request()->routeIs($item['match']))
-                                    <span class="ml-auto h-1.5 w-1.5 rounded-full bg-white/80"></span>
-                                @endif
-                            </a>
-                        @endforeach
-                    @endforeach
                 </nav>
-
             </aside>
 
             {{-- Main --}}
@@ -128,7 +70,7 @@
                     </button>
                     <div class="min-w-0">
                         <h2 class="truncate text-sm font-semibold text-gray-900">@yield('title', 'Dashboard')</h2>
-                        <p class="hidden text-xs text-gray-500 sm:block">Sistem Penerimaan Mahasiswa Baru</p>
+                        <p class="hidden text-xs text-gray-500 sm:block">Program Referral Mahasiswa Baru</p>
                     </div>
 
                     <div class="ml-auto flex items-center gap-2" x-data="{ open: false }">

@@ -397,6 +397,7 @@ class PendaftaranController extends Controller
                     'jalur_id' => $jalurId,
                     'gelombang_id' => $gelombang->id,
                     'promo_id' => $promo?->id,
+                    'referrer_id' => Auth::user()->referrer_id,
                     'status' => 'draft',
                 ]);
 

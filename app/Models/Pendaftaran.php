@@ -19,6 +19,7 @@ class Pendaftaran extends Model
         'jalur_id',
         'gelombang_id',
         'promo_id',
+        'referrer_id',
         'nomor_pendaftaran',
         'status',
         'status_pembayaran',
@@ -56,6 +57,11 @@ class Pendaftaran extends Model
     public function promo(): BelongsTo
     {
         return $this->belongsTo(Promo::class, 'promo_id');
+    }
+
+    public function referrer(): BelongsTo
+    {
+        return $this->belongsTo(Referrer::class, 'referrer_id');
     }
 
     public function prodiPilihan(): HasMany
