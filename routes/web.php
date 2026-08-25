@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\CbtJadwalController;
+use App\Http\Controllers\Admin\CbtPesertaController;
+use App\Http\Controllers\Admin\CbtSoalController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DokumenPersyaratanController;
 use App\Http\Controllers\Admin\GelombangController;
@@ -15,6 +18,7 @@ use App\Http\Controllers\Admin\ReferrerController as AdminReferrerController;
 use App\Http\Controllers\Admin\SettingProdiController;
 use App\Http\Controllers\Admin\TahunPenerimaanController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Mahasiswa\CbtController as MahasiswaCbtController;
 use App\Http\Controllers\Mahasiswa\DashboardController as MahasiswaDashboardController;
 use App\Http\Controllers\Mahasiswa\PendaftaranController;
 use App\Http\Controllers\ProfileController;
@@ -88,6 +92,14 @@ Route::middleware(['auth', 'role:super-admin|admin-pmb'])->prefix('admin')->name
     Route::get('setting-prodi/{prodi}/edit', [SettingProdiController::class, 'edit'])->name('setting-prodi.edit');
     Route::put('setting-prodi/{prodi}', [SettingProdiController::class, 'update'])->name('setting-prodi.update');
 
+    Route::middleware('permission:kelola-cbt')->group(function () {
+        Route::resource('cbt-soal', CbtSoalController::class)->except('show')->parameters(['cbt-soal' => 'soal']);
+        Route::resource('cbt-jadwal', CbtJadwalController::class)->except('show')->parameters(['cbt-jadwal' => 'jadwal']);
+        Route::get('cbt-jadwal/{jadwal}/peserta', [CbtPesertaController::class, 'index'])->name('cbt-jadwal.peserta');
+        Route::get('cbt-peserta/{sesi}', [CbtPesertaController::class, 'show'])->name('cbt-peserta.show');
+        Route::patch('cbt-peserta/{sesi}/tutup', [CbtPesertaController::class, 'tutup'])->name('cbt-peserta.tutup');
+    });
+
     Route::middleware('permission:kelola-referrer')->group(function () {
         Route::get('referrer', [AdminReferrerController::class, 'index'])->name('referrer.index');
         Route::get('referrer/{referrer}', [AdminReferrerController::class, 'show'])->name('referrer.show');
@@ -111,6 +123,13 @@ Route::middleware(['auth', 'role:mahasiswa'])->prefix('mahasiswa')->name('mahasi
     Route::post('/pendaftaran', [PendaftaranController::class, 'store'])->name('pendaftaran.store');
     Route::get('/pendaftaran/{pendaftaran}', [PendaftaranController::class, 'show'])->name('pendaftaran.show');
     Route::post('/pendaftaran/{pendaftaran}/daftar-ulang', [PendaftaranController::class, 'daftarUlang'])->name('pendaftaran.daftar-ulang');
+
+    Route::get('/cbt', [MahasiswaCbtController::class, 'index'])->name('cbt.index');
+    Route::post('/cbt/{pendaftaran}/mulai', [MahasiswaCbtController::class, 'mulai'])->name('cbt.mulai');
+    Route::get('/cbt/sesi/{sesi}', [MahasiswaCbtController::class, 'ujian'])->name('cbt.ujian');
+    Route::post('/cbt/sesi/{sesi}/jawab', [MahasiswaCbtController::class, 'jawab'])->name('cbt.jawab');
+    Route::post('/cbt/sesi/{sesi}/pelanggaran', [MahasiswaCbtController::class, 'pelanggaran'])->name('cbt.pelanggaran');
+    Route::post('/cbt/sesi/{sesi}/submit', [MahasiswaCbtController::class, 'submit'])->name('cbt.submit');
 });
 
 require __DIR__.'/auth.php';

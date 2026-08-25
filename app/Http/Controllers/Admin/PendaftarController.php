@@ -68,6 +68,7 @@ class PendaftarController extends Controller
             'pendaftar',
             'daftarUlang',
             'syaratJawaban.syarat',
+            'cbtSesi',
         ]);
 
         return view('admin.pendaftar.show', compact('pendaftaran'));

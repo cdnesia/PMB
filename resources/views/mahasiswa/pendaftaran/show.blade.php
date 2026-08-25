@@ -132,12 +132,22 @@
 
             {{-- Banner CBT (jika jalur mewajibkan) --}}
             @if ($pendaftaran->jalur?->requires_cbt)
+                @php $cbtSesi = $pendaftaran->cbtSesi->first(); @endphp
                 <div class="mt-6 flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
                     <x-icon name="warning" class="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
-                    <div class="text-sm text-amber-800">
-                        <span class="font-semibold">Jalur ini mewajibkan Tes CBT.</span>
-                        <span class="text-amber-700"> Jadwal dan detail pelaksanaan tes akan diinformasikan oleh panitia.</span>
+                    <div class="flex-1 text-sm text-amber-800">
+                        @if ($cbtSesi?->sudahSelesai())
+                            <span class="font-semibold">Tes CBT sudah Anda kumpulkan.</span>
+                            <span class="text-amber-700"> Hasil akan diumumkan oleh panitia.</span>
+                        @elseif ($cbtSesi)
+                            <span class="font-semibold">Sesi tes CBT sedang berlangsung.</span>
+                            <span class="text-amber-700"> Batas waktu {{ $cbtSesi->deadline_at->format('d/m/Y H:i') }}.</span>
+                        @else
+                            <span class="font-semibold">Jalur ini mewajibkan Tes CBT.</span>
+                            <span class="text-amber-700"> Cek halaman Tes CBT untuk jadwal & pelaksanaannya.</span>
+                        @endif
                     </div>
+                    <x-ui-button variant="secondary" size="sm" :href="route('mahasiswa.cbt.index')">Buka Tes CBT</x-ui-button>
                 </div>
             @endif
 

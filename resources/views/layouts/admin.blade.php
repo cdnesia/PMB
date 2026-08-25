@@ -55,6 +55,13 @@
                             ],
                         ],
                         [
+                            'label' => 'Tes CBT',
+                            'items' => array_filter([
+                                'Bank Soal' => Auth::user()->can('kelola-cbt') ? ['icon' => 'cbt', 'route' => 'admin.cbt-soal.index', 'match' => 'admin.cbt-soal.*'] : null,
+                                'Jadwal CBT' => Auth::user()->can('kelola-cbt') ? ['icon' => 'calendar', 'route' => 'admin.cbt-jadwal.index', 'match' => ['admin.cbt-jadwal.*', 'admin.cbt-peserta.*']] : null,
+                            ]),
+                        ],
+                        [
                             'label' => 'Pengaturan',
                             'items' => [
                                 'Tahun Penerimaan' => ['icon' => 'calendar', 'route' => 'admin.tahun.index', 'match' => 'admin.tahun.*'],
@@ -104,10 +111,10 @@
                         @foreach ($group['items'] as $label => $item)
                             <a href="{{ route($item['route']) }}"
                                class="group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition
-                                      {{ request()->routeIs($item['match']) ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                                      {{ request()->routeIs(...(array) $item['match']) ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
                                 <x-icon :name="$item['icon']" class="h-5 w-5 shrink-0" />
                                 {{ $label }}
-                                @if (request()->routeIs($item['match']))
+                                @if (request()->routeIs(...(array) $item['match']))
                                     <span class="ml-auto h-1.5 w-1.5 rounded-full bg-white/80"></span>
                                 @endif
                             </a>

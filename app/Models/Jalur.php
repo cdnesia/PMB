@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -60,5 +60,15 @@ class Jalur extends Model
     public function syarat(): HasMany
     {
         return $this->hasMany(SyaratJalur::class, 'jalur_id');
+    }
+
+    public function cbtSoal(): HasMany
+    {
+        return $this->hasMany(CbtSoal::class, 'jalur_id');
+    }
+
+    public function cbtJadwal(): HasMany
+    {
+        return $this->hasMany(CbtJadwal::class, 'jalur_id');
     }
 }

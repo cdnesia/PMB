@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Mahasiswa;
 
 use App\Http\Controllers\Controller;
 use App\Models\Agama;
-use App\Models\DaftarUlang;
 use App\Models\DokumenPendaftar;
 use App\Models\DokumenPersyaratan;
 use App\Models\Gelombang;
@@ -24,9 +23,9 @@ use App\Models\Wilayah;
 use App\Services\PendaftaranNotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -477,7 +476,7 @@ class PendaftaranController extends Controller
      *   - jalur_id kosong ATAU sama dengan jalur terpilih, DAN
      *   - prodi_id kosong ATAU termasuk dalam prodi terpilih.
      *
-     * @return \Illuminate\Support\Collection<int, DokumenPersyaratan>
+     * @return Collection<int, DokumenPersyaratan>
      */
     private function resolveRequiredDocuments(string $jalurId, array $prodiIds)
     {
@@ -528,7 +527,7 @@ class PendaftaranController extends Controller
     {
         abort_unless($pendaftaran->user_id === Auth::id(), 403);
 
-        $pendaftaran->load(['tahun', 'gelombang', 'jalur', 'promo', 'prodiPilihan.prodi', 'prodiPilihan.kelas', 'dokumen', 'pendaftar', 'daftarUlang', 'syaratJawaban.syarat']);
+        $pendaftaran->load(['tahun', 'gelombang', 'jalur', 'promo', 'prodiPilihan.prodi', 'prodiPilihan.kelas', 'dokumen', 'pendaftar', 'daftarUlang', 'syaratJawaban.syarat', 'cbtSesi']);
 
         return view('mahasiswa.pendaftaran.show', compact('pendaftaran'));
     }

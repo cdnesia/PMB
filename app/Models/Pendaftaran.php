@@ -2,10 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Pendaftaran extends Model
 {
@@ -24,6 +25,7 @@ class Pendaftaran extends Model
         'status',
         'status_pembayaran',
         'nilai_seleksi',
+        'cbt_menit_tambahan',
         'catatan',
     ];
 
@@ -74,12 +76,12 @@ class Pendaftaran extends Model
         return $this->hasMany(DokumenPendaftar::class, 'pendaftaran_id');
     }
 
-    public function pendaftar(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function pendaftar(): HasOne
     {
         return $this->hasOne(Pendaftar::class, 'pendaftaran_id');
     }
 
-    public function daftarUlang(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function daftarUlang(): HasOne
     {
         return $this->hasOne(DaftarUlang::class, 'pendaftaran_id');
     }
@@ -87,6 +89,11 @@ class Pendaftaran extends Model
     public function syaratJawaban(): HasMany
     {
         return $this->hasMany(PendaftaranSyarat::class, 'pendaftaran_id');
+    }
+
+    public function cbtSesi(): HasMany
+    {
+        return $this->hasMany(CbtSesi::class, 'pendaftaran_id');
     }
 
     /**

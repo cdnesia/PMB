@@ -30,6 +30,8 @@
                                class="rounded-lg px-3 py-2 font-medium transition {{ request()->routeIs('mahasiswa.dashboard') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">Beranda</a>
                             <a href="{{ route('mahasiswa.pendaftaran.index') }}"
                                class="rounded-lg px-3 py-2 font-medium transition {{ request()->routeIs('mahasiswa.pendaftaran.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">Pendaftaran Saya</a>
+                            <a href="{{ route('mahasiswa.cbt.index') }}"
+                               class="rounded-lg px-3 py-2 font-medium transition {{ request()->routeIs('mahasiswa.cbt.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">Tes CBT</a>
                         </nav>
                     </div>
 

@@ -362,6 +362,35 @@
                     </form>
                 </section>
 
+                {{-- Hasil CBT --}}
+                @if ($pendaftaran->jalur?->requires_cbt)
+                    <section class="rounded-xl border border-gray-200 p-5">
+                        <h3 class="text-sm font-semibold text-gray-900">Tes CBT</h3>
+                        @php $cbtSesi = $pendaftaran->cbtSesi->first(); @endphp
+                        @if (! $cbtSesi)
+                            <p class="mt-1 text-xs text-gray-500">Pendaftar belum memulai tes CBT.</p>
+                        @else
+                            <div class="mt-3 space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-500">Status</span>
+                                    <x-ui-badge :color="$cbtSesi->status === 'selesai' ? 'green' : 'amber'">{{ $cbtSesi->status === 'selesai' ? 'Selesai' : 'Berlangsung' }}</x-ui-badge>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-500">Skor</span>
+                                    <span class="font-semibold text-gray-900">{{ $cbtSesi->skor !== null ? number_format($cbtSesi->skor, 2) : '—' }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-500">Pelanggaran</span>
+                                    <span class="{{ $cbtSesi->jumlah_pelanggaran > 0 ? 'text-red-600 font-medium' : 'text-gray-400' }}">{{ $cbtSesi->jumlah_pelanggaran }}x</span>
+                                </div>
+                            </div>
+                            <a href="{{ route('admin.cbt-peserta.show', $cbtSesi) }}" class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50">
+                                <x-icon name="eye" class="h-3.5 w-3.5" /> Lihat Rincian Jawaban
+                            </a>
+                        @endif
+                    </section>
+                @endif
+
                 {{-- Reset password --}}
                 <section class="rounded-xl border border-gray-200 p-5">
                     <h3 class="text-sm font-semibold text-gray-900">Reset Password Pendaftar</h3>
