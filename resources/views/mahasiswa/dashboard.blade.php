@@ -21,7 +21,7 @@
                     </div>
                     <div>
                         <div class="font-mono text-sm font-semibold text-gray-900">{{ $p->nomor_pendaftaran }}</div>
-                        <div class="mt-0.5 text-sm text-gray-500">{{ $p->jalur?->nama }} · {{ $p->gelombang?->nama ?? '—' }} · {{ $p->tahun?->nama }}</div>
+                        <div class="mt-0.5 text-sm text-gray-500">{{ $p->jalur?->namaLokal() }} · {{ $p->gelombang?->namaLokal() ?? '—' }} · {{ $p->tahun?->namaLokal() }}</div>
                     </div>
                 </div>
                 <div class="flex items-center gap-3">

@@ -42,7 +42,7 @@ return [
     'open_cbt' => 'Open CBT Test',
 
     'admission_year' => 'Admission Year',
-    'wave' => 'Wave',
+    'wave' => 'Batch',
     'pathway' => 'Pathway',
     'registration_fee' => 'Registration Fee',
     'free' => 'Free',
@@ -92,8 +92,8 @@ return [
     'no_open_wave_title' => 'No open registration wave yet',
     'contact_committee_period' => 'Please contact the admission committee for the registration period.',
 
-    'step1_title' => 'Choose Registration Wave',
-    'select_wave_placeholder' => '-- Select a Wave --',
+    'step1_title' => 'Choose Registration Batch',
+    'select_wave_placeholder' => '-- Select a Batch --',
     'wave_until' => '— until :date',
 
     'step2_title' => 'Choose Admission Pathway',

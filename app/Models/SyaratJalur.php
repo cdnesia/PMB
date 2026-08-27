@@ -2,13 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\Concerns\PunyaNamaTerjemahan;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SyaratJalur extends Model
 {
     use HasUuids;
+    use PunyaNamaTerjemahan;
 
     protected $table = 'syarat_jalur';
 

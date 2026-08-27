@@ -15,7 +15,7 @@
             <x-ui-card>
                 <div class="flex flex-wrap items-start justify-between gap-4">
                     <div>
-                        <h2 class="text-base font-semibold text-gray-900">{{ $p->jalur?->nama }}</h2>
+                        <h2 class="text-base font-semibold text-gray-900">{{ $p->jalur?->namaLokal() }}</h2>
                         <p class="mt-1 text-sm text-gray-500">{{ $p->nomor_pendaftaran }}</p>
                     </div>
 

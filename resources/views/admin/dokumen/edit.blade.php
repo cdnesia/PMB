@@ -44,6 +44,7 @@
                     <div class="mt-2">
                         <x-ui-input name="nama" id="nama" :value="old('nama', $dokumen->nama)" placeholder="Contoh: Ijazah / Rapor" />
                     </div>
+                    <p class="mt-1.5 text-xs text-gray-400">Diterjemahkan otomatis untuk pendaftar berbahasa lain sesuai bahasa yang mereka pilih.</p>
                 </div>
             </div>
 

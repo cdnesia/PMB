@@ -195,15 +195,15 @@
             <dl class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div class="rounded-lg bg-gray-50 px-4 py-3">
                     <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">{{ __('pendaftaran.admission_year') }}</dt>
-                    <dd class="mt-1 text-sm font-medium text-gray-900">{{ $pendaftaran->tahun?->nama }}</dd>
+                    <dd class="mt-1 text-sm font-medium text-gray-900">{{ $pendaftaran->tahun?->namaLokal() }}</dd>
                 </div>
                 <div class="rounded-lg bg-gray-50 px-4 py-3">
                     <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">{{ __('pendaftaran.wave') }}</dt>
-                    <dd class="mt-1 text-sm font-medium text-gray-900">{{ $pendaftaran->gelombang?->nama ?? '—' }}</dd>
+                    <dd class="mt-1 text-sm font-medium text-gray-900">{{ $pendaftaran->gelombang?->namaLokal() ?? '—' }}</dd>
                 </div>
                 <div class="rounded-lg bg-gray-50 px-4 py-3">
                     <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">{{ __('pendaftaran.pathway') }}</dt>
-                    <dd class="mt-1 text-sm font-medium text-gray-900">{{ $pendaftaran->jalur?->nama }}</dd>
+                    <dd class="mt-1 text-sm font-medium text-gray-900">{{ $pendaftaran->jalur?->namaLokal() }}</dd>
                 </div>
                 <div class="rounded-lg bg-gray-50 px-4 py-3">
                     <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">{{ __('pendaftaran.registration_fee') }}</dt>

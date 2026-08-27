@@ -69,7 +69,7 @@ class PendaftaranController extends Controller
         // Daftar jalur untuk kebutuhan client-side (nama + biaya default jalur)
         $jalurList = $jalur->map(fn ($j) => [
             'id' => $j->id,
-            'nama' => $j->nama,
+            'nama' => $j->namaLokal(),
             'biaya_default' => (float) $j->biaya_pendaftaran,
         ])->values()->all();
 
@@ -82,7 +82,7 @@ class PendaftaranController extends Controller
         // Matriks jalur yang tersedia per gelombang (untuk filter di client)
         $gelombangMap = $gelombang->map(fn ($g) => [
             'id' => $g->id,
-            'nama' => $g->nama,
+            'nama' => $g->namaLokal(),
             'tanggal_selesai' => $g->tanggal_selesai?->format('d/m/Y'),
             'jalur_ids' => $g->jalur->pluck('id')->all(),
         ])->values()->all();
@@ -121,7 +121,7 @@ class PendaftaranController extends Controller
                 'id' => $s->id,
                 'tipe' => $s->tipe,
                 'kode' => $s->kode,
-                'nama' => $s->nama,
+                'nama' => $s->namaLokal(),
                 'wajib' => (bool) $s->wajib,
             ])->values()->all())
             ->all();
@@ -230,7 +230,7 @@ class PendaftaranController extends Controller
     {
         return [
             'id' => $d->id,
-            'nama' => $d->nama,
+            'nama' => $d->namaLokal(),
             'wajib' => (bool) $d->wajib,
             'jalur_id' => $d->jalur_id,
             'prodi_id' => $d->prodi_id,
