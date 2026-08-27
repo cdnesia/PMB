@@ -97,11 +97,11 @@ class PendaftaranController extends Controller
         $matriksMap = $matriks->groupBy('jalur_id')->map(function ($rows) {
             return $rows->groupBy('prodi_id')->map(function ($prodiRows) {
                 return [
-                    'nama' => $prodiRows->first()->prodi->nama,
+                    'nama' => $prodiRows->first()->prodi->namaLokal(),
                     'jenjang' => $prodiRows->first()->prodi->jenjang,
                     'kelas' => $prodiRows->map(fn ($r) => [
                         'id' => $r->kelas_id,
-                        'nama' => $r->kelas->nama,
+                        'nama' => $r->kelas->namaLokal(),
                     ])->values()->all(),
                 ];
             })->all();
@@ -141,7 +141,7 @@ class PendaftaranController extends Controller
             ->map(fn ($p) => [
                 'id' => $p->id,
                 'kode' => $p->kode,
-                'nama' => $p->nama,
+                'nama' => $p->namaLokal(),
                 'tipe' => $p->tipe,
                 'nilai' => (float) $p->nilai,
                 'maks_potongan' => $p->maks_potongan !== null ? (float) $p->maks_potongan : null,
@@ -151,7 +151,7 @@ class PendaftaranController extends Controller
                     'prodi_id' => $k->prodi_id,
                     'kelas_id' => $k->kelas_id,
                 ])->values()->all(),
-                'label' => $p->kode.' — '.$p->nama.' ('.$p->labelPotongan().')',
+                'label' => $p->kode.' — '.$p->namaLokal().' ('.$p->labelPotongan().')',
             ])->values()->all();
 
         // Daftar negara (untuk pendaftar WNA) — tidak termasuk Indonesia.

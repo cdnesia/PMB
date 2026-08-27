@@ -44,7 +44,7 @@
                         <x-ui-select name="gelombang_id" x-model="gelombangId" @change="jalurId = null" required>
                             <option value="">{{ __('pendaftaran.select_wave_placeholder') }}</option>
                             @foreach ($gelombang as $g)
-                                <option value="{{ $g->id }}">{{ $g->nama }} {{ __('pendaftaran.wave_until', ['date' => $g->tanggal_selesai->format('d/m/Y')]) }}</option>
+                                <option value="{{ $g->id }}">{{ $g->namaLokal() }} {{ __('pendaftaran.wave_until', ['date' => $g->tanggal_selesai->format('d/m/Y')]) }}</option>
                             @endforeach
                         </x-ui-select>
                     </div>
@@ -282,7 +282,7 @@
                                             <x-ui-select name="pekerjaan" id="pekerjaan">
                                                 <option value="">{{ __('pendaftaran.select_occupation_placeholder') }}</option>
                                                 @foreach ($pekerjaanList as $pk)
-                                                    <option value="{{ $pk->nama }}" @selected(old('pekerjaan') === $pk->nama)>{{ $pk->nama }}</option>
+                                                    <option value="{{ $pk->nama }}" @selected(old('pekerjaan') === $pk->nama)>{{ $pk->namaLokal() }}</option>
                                                 @endforeach
                                             </x-ui-select>
                                         </div>
