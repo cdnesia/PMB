@@ -213,14 +213,14 @@ class PendaftaranController extends Controller
                 ->get()
                 ->map(fn (Agama $a) => [
                     'id_agama' => $a->kode,
-                    'nama_agama' => $a->nama,
+                    'nama_agama' => $a->namaLokal(),
                 ])
                 ->all(),
             'jenis_kelamin' => JenisKelamin::orderBy('kode')
                 ->get()
                 ->map(fn (JenisKelamin $j) => [
                     'id_jenis_kelamin' => $j->kode,
-                    'nama_jenis_kelamin' => $j->nama,
+                    'nama_jenis_kelamin' => $j->namaLokal(),
                 ])
                 ->all(),
         ];
@@ -235,24 +235,6 @@ class PendaftaranController extends Controller
             'jalur_id' => $d->jalur_id,
             'prodi_id' => $d->prodi_id,
         ];
-    }
-
-    /**
-     * Resolve nama dari kode referensi NEO Feeder (mis. id_agama → nama_agama).
-     */
-    private function refName(array $rows, string $idKey, string $namaKey, mixed $code): ?string
-    {
-        if ($code === null || $code === '') {
-            return null;
-        }
-
-        foreach ($rows as $row) {
-            if ((string) ($row[$idKey] ?? '') === (string) $code) {
-                return $row[$namaKey] ?? null;
-            }
-        }
-
-        return null;
     }
 
     public function store(Request $request): RedirectResponse
@@ -411,11 +393,8 @@ class PendaftaranController extends Controller
             }
         }
 
-        // Kamus referensi NEO Feeder (di-cache) untuk resolve kode → nama.
-        $refs = $this->neoReferences();
-
         try {
-            $pendaftaran = DB::transaction(function () use ($request, $tahun, $gelombang, $jalurId, $promo, $pilihan, $requiredDocs, $uploads, $syarat, $syaratFieldInput, $syaratFileInput, $refs) {
+            $pendaftaran = DB::transaction(function () use ($request, $tahun, $gelombang, $jalurId, $promo, $pilihan, $requiredDocs, $uploads, $syarat, $syaratFieldInput, $syaratFileInput) {
                 $pendaftaran = Pendaftaran::create([
                     'user_id' => Auth::id(),
                     'tahun_id' => $tahun->id,
@@ -440,7 +419,9 @@ class PendaftaranController extends Controller
                     'tempat_lahir' => $request->tempat_lahir,
                     'tanggal_lahir' => $request->tanggal_lahir,
                     'jenis_kelamin' => $request->jenis_kelamin,
-                    'agama' => $this->refName($refs['agama'], 'id_agama', 'nama_agama', $request->agama),
+                    // Selalu simpan nama Bahasa Indonesia (bukan hasil terjemahan tampilan form)
+                    // supaya data biodata konsisten untuk admin & sinkronisasi NEO Feeder.
+                    'agama' => Agama::where('kode', $request->agama)->value('nama'),
                     'agama_kode' => $request->agama,
                     'kewarganegaraan' => $request->kewarganegaraan,
                     'negara' => $wNegara?->nama,
