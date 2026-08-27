@@ -1,9 +1,9 @@
 @extends('layouts.mahasiswa')
 
-@section('title', 'Tes CBT')
+@section('title', __('nav.cbt_test'))
 
 @section('content')
-    <x-ui-page-header title="Tes CBT" description="Status tes CBT untuk pendaftaran Anda." />
+    <x-ui-page-header :title="__('nav.cbt_test')" :description="__('cbt.index_description')" />
 
     <div class="space-y-6">
         @forelse ($data as $row)
@@ -20,13 +20,13 @@
                     </div>
 
                     @if ($sesi && $sesi->sudahSelesai())
-                        <x-ui-badge color="green">Ujian Selesai</x-ui-badge>
+                        <x-ui-badge color="green">{{ __('cbt.exam_finished') }}</x-ui-badge>
                     @elseif ($sesi)
-                        <x-ui-badge color="amber">Sedang Berlangsung</x-ui-badge>
+                        <x-ui-badge color="amber">{{ __('cbt.in_progress') }}</x-ui-badge>
                     @elseif ($jadwal)
-                        <x-ui-badge color="blue">Jadwal Tersedia</x-ui-badge>
+                        <x-ui-badge color="blue">{{ __('cbt.schedule_available') }}</x-ui-badge>
                     @else
-                        <x-ui-badge color="gray">Belum Ada Jadwal</x-ui-badge>
+                        <x-ui-badge color="gray">{{ __('cbt.no_schedule_yet') }}</x-ui-badge>
                     @endif
                 </div>
 
@@ -35,18 +35,18 @@
                         <div class="flex items-start gap-3 rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
                             <x-icon name="check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
                             <div>
-                                <span class="font-semibold">Ujian telah dikumpulkan</span> pada {{ $sesi->finished_at?->format('d/m/Y H:i') }}.
-                                Hasil akan diumumkan oleh panitia bersama pengumuman seleksi.
+                                <span class="font-semibold">{{ __('cbt.exam_submitted') }}</span> {{ __('cbt.on_date', ['date' => $sesi->finished_at?->format('d/m/Y H:i')]) }}.
+                                {{ __('cbt.result_with_selection_announcement') }}
                             </div>
                         </div>
                     @elseif ($sesi)
                         <div class="flex items-start gap-3 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800">
                             <x-icon name="warning" class="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
                             <div class="flex-1">
-                                <span class="font-semibold">Sesi ujian sedang berlangsung.</span>
-                                Batas waktu: {{ $sesi->deadline_at?->format('d/m/Y H:i') }}.
+                                <span class="font-semibold">{{ __('cbt.session_in_progress') }}</span>
+                                {{ __('cbt.deadline_label') }}: {{ $sesi->deadline_at?->format('d/m/Y H:i') }}.
                             </div>
-                            <x-ui-button variant="primary" size="sm" :href="route('mahasiswa.cbt.ujian', $sesi)">Lanjutkan Ujian</x-ui-button>
+                            <x-ui-button variant="primary" size="sm" :href="route('mahasiswa.cbt.ujian', $sesi)">{{ __('cbt.continue_exam') }}</x-ui-button>
                         </div>
                     @elseif ($jadwal)
                         <div class="flex items-start gap-3 rounded-lg bg-sky-50 px-4 py-3 text-sm text-sky-800">
@@ -57,27 +57,27 @@
                                     <span class="ml-1"><x-ui-badge color="indigo">{{ $jadwal->prodi->nama }}</x-ui-badge></span>
                                 @endif
                                 <div class="mt-0.5 text-xs text-sky-700">
-                                    Durasi {{ $jadwal->durasi_menit }} menit · {{ $jadwal->totalSoal() }} soal ·
-                                    Jendela waktu hingga {{ $jadwal->waktu_selesai?->format('d/m/Y H:i') }}
+                                    {{ __('cbt.duration_minutes', ['n' => $jadwal->durasi_menit]) }} · {{ __('cbt.questions_count', ['n' => $jadwal->totalSoal()]) }} ·
+                                    {{ __('cbt.window_until', ['date' => $jadwal->waktu_selesai?->format('d/m/Y H:i')]) }}
                                 </div>
                             </div>
                             @if ($row['eligible'])
-                                <form method="POST" action="{{ route('mahasiswa.cbt.mulai', $p) }}" onsubmit="return confirm('Mulai ujian sekarang? Timer akan langsung berjalan dan tidak dapat dijeda.')">
+                                <form method="POST" action="{{ route('mahasiswa.cbt.mulai', $p) }}" onsubmit="return confirm('{{ __('cbt.confirm_start_exam') }}')">
                                     @csrf
-                                    <x-ui-button variant="primary" size="sm">Mulai Ujian</x-ui-button>
+                                    <x-ui-button variant="primary" size="sm">{{ __('cbt.start_exam') }}</x-ui-button>
                                 </form>
                             @else
-                                <x-ui-badge color="gray">Selesaikan pembayaran untuk memulai</x-ui-badge>
+                                <x-ui-badge color="gray">{{ __('cbt.complete_payment_to_start') }}</x-ui-badge>
                             @endif
                         </div>
                     @else
-                        <p class="text-sm text-gray-500">Belum ada jadwal CBT yang berlaku untuk jalur ini. Jadwal akan diinformasikan oleh panitia.</p>
+                        <p class="text-sm text-gray-500">{{ __('cbt.no_active_schedule') }}</p>
                     @endif
                 </div>
             </x-ui-card>
         @empty
             <x-ui-card>
-                <p class="text-sm text-gray-500">Tidak ada pendaftaran Anda yang mewajibkan tes CBT.</p>
+                <p class="text-sm text-gray-500">{{ __('cbt.no_registration_requires_cbt') }}</p>
             </x-ui-card>
         @endforelse
     </div>

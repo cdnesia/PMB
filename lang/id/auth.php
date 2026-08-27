@@ -1,0 +1,51 @@
+<?php
+
+return [
+    'welcome_title' => 'Selamat Datang',
+    'login_subtitle' => 'Masuk untuk melanjutkan pendaftaran Anda.',
+    'email' => 'Email',
+    'password' => 'Password',
+    'forgot_password' => 'Lupa password?',
+    'remember_me' => 'Ingat saya',
+    'login_button' => 'Masuk',
+    'no_account' => 'Belum punya akun?',
+    'register_now' => 'Daftar sekarang',
+    'login_link' => 'Masuk',
+    'have_account' => 'Sudah punya akun?',
+
+    'register_title' => 'Buat Akun',
+    'register_subtitle' => 'Daftar untuk memulai perjalanan seleksi Anda.',
+    'full_name' => 'Nama Lengkap',
+    'full_name_placeholder' => 'Nama Anda',
+    'phone' => 'Nomor WA / Telepon',
+    'phone_hint' => 'Gunakan nomor aktif untuk menerima informasi seleksi.',
+    'referral_code' => 'Kode Referral',
+    'referral_searching' => 'Mencari...',
+    'referral_min_chars' => 'Ketik minimal 2 karakter',
+    'referral_not_found' => 'Kode referral tidak ditemukan',
+    'referral_placeholder' => 'Ketik untuk mencari kode referral (opsional)',
+    'referral_hint' => 'Punya kode dari karyawan atau mitra sekolah? Ketik kodenya, lalu pilih dari daftar.',
+    'password_min_placeholder' => 'Min. 8 karakter',
+    'confirm_password' => 'Konfirmasi Password',
+    'confirm_password_placeholder' => 'Ulangi password',
+    'register_button' => 'Daftar',
+
+    'forgot_password_title' => 'Lupa Password',
+    'forgot_password_subtitle' => 'Masukkan email Anda dan kami akan mengirimkan tautan untuk mereset password.',
+    'send_reset_link' => 'Kirim Tautan Reset',
+    'remember_password' => 'Ingat password?',
+
+    'reset_password_title' => 'Reset Password',
+    'reset_password_subtitle' => 'Buat password baru untuk akun Anda.',
+    'new_password' => 'Password Baru',
+    'reset_password_button' => 'Reset Password',
+
+    'confirm_password_title' => 'Konfirmasi Password',
+    'confirm_password_subtitle' => 'Ini adalah area aman. Harap konfirmasi password Anda sebelum melanjutkan.',
+    'confirm_button' => 'Konfirmasi',
+
+    'verify_email_title' => 'Verifikasi Email Anda',
+    'verify_email_body' => 'Terima kasih telah mendaftar! Sebelum memulai, silakan verifikasi alamat email Anda dengan mengeklik tautan yang baru saja kami kirimkan.',
+    'verify_email_sent' => 'Tautan verifikasi baru telah dikirim ke email Anda.',
+    'resend_verification' => 'Kirim Ulang Email Verifikasi',
+];

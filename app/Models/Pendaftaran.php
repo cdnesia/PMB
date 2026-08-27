@@ -86,6 +86,11 @@ class Pendaftaran extends Model
         return $this->hasOne(DaftarUlang::class, 'pendaftaran_id');
     }
 
+    public function pembayaran(): HasOne
+    {
+        return $this->hasOne(PembayaranPendaftaran::class, 'pendaftaran_id');
+    }
+
     public function syaratJawaban(): HasMany
     {
         return $this->hasMany(PendaftaranSyarat::class, 'pendaftaran_id');

@@ -11,6 +11,7 @@ use App\Models\Jalur;
 use App\Models\JalurKelas;
 use App\Models\JenisKelamin;
 use App\Models\Kuota;
+use App\Models\Pekerjaan;
 use App\Models\Pendaftar;
 use App\Models\Pendaftaran;
 use App\Models\PendaftaranProdi;
@@ -26,6 +27,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -158,6 +160,26 @@ class PendaftaranController extends Controller
             ->orderBy('kode')
             ->get();
 
+        // Kecamatan yang sudah dipilih sebelumnya (bila formulir gagal validasi),
+        // supaya dropdown pencarian kecamatan tidak kosong lagi setelah reload.
+        $kecamatanTerpilih = null;
+        if (old('kecamatan')) {
+            $kecamatan = Wilayah::with('parent.parent')->find(old('kecamatan'));
+            if ($kecamatan && $kecamatan->parent && $kecamatan->parent->parent) {
+                $kecamatanTerpilih = [
+                    'id' => $kecamatan->id,
+                    'text' => "{$kecamatan->nama}, {$kecamatan->parent->nama}, {$kecamatan->parent->parent->nama}",
+                    'kota_id' => $kecamatan->parent->id,
+                    'kota_nama' => $kecamatan->parent->nama,
+                    'provinsi_id' => $kecamatan->parent->parent->id,
+                    'provinsi_nama' => $kecamatan->parent->parent->nama,
+                ];
+            }
+        }
+
+        // Daftar pekerjaan (untuk pendaftar yang sudah bekerja — opsional).
+        $pekerjaanList = Pekerjaan::orderBy('kode')->get();
+
         // Kamus referensi NEO Feeder untuk biodata (dengan fallback kosong bila API gagal).
         $refs = $this->neoReferences();
 
@@ -173,6 +195,8 @@ class PendaftaranController extends Controller
             'syaratMap',
             'promoList',
             'negaraList',
+            'kecamatanTerpilih',
+            'pekerjaanList',
             'refs'
         ));
     }
@@ -265,6 +289,8 @@ class PendaftaranController extends Controller
             'kode_pos' => 'nullable|digits:5',
             'asal_sekolah' => 'required|string|max:150',
             'tahun_lulus' => 'nullable|digits:4',
+            'pekerjaan' => ['nullable', Rule::in(Pekerjaan::pluck('nama'))],
+            'tempat_bekerja' => 'nullable|string|max:150',
         ]);
 
         // Pastikan "negara" yang dipilih benar-benar level negara (untuk WNA).
@@ -434,6 +460,8 @@ class PendaftaranController extends Controller
                     'kode_pos' => $request->kode_pos,
                     'asal_sekolah' => $request->asal_sekolah,
                     'tahun_lulus' => $request->tahun_lulus,
+                    'pekerjaan' => $request->pekerjaan,
+                    'tempat_bekerja' => $request->tempat_bekerja,
                 ]);
 
                 foreach ($pilihan as $p) {
@@ -455,6 +483,15 @@ class PendaftaranController extends Controller
                 $pendaftaran->update([
                     'nomor_pendaftaran' => sprintf('PMB-%s-%05d', $tahun->kode, $pendaftaran->no_urut),
                 ]);
+
+                // Jika tidak ada biaya pendaftaran (gratis/promo 100%), langsung lunas.
+                // Jika ada biaya, majukan ke "menunggu_pembayaran" agar pendaftar bisa langsung membayar.
+                $pendaftaran->load(['prodiPilihan', 'jalur', 'promo']);
+                if ($pendaftaran->biayaPendaftaranAkhir() > 0) {
+                    $pendaftaran->update(['status' => 'menunggu_pembayaran']);
+                } else {
+                    $pendaftaran->update(['status' => 'lunas', 'status_pembayaran' => 'lunas']);
+                }
 
                 return $pendaftaran;
             });
@@ -527,9 +564,49 @@ class PendaftaranController extends Controller
     {
         abort_unless($pendaftaran->user_id === Auth::id(), 403);
 
-        $pendaftaran->load(['tahun', 'gelombang', 'jalur', 'promo', 'prodiPilihan.prodi', 'prodiPilihan.kelas', 'dokumen', 'pendaftar', 'daftarUlang', 'syaratJawaban.syarat', 'cbtSesi']);
+        $pendaftaran->load(['tahun', 'gelombang', 'jalur', 'promo', 'prodiPilihan.prodi', 'prodiPilihan.kelas', 'dokumen', 'pendaftar', 'daftarUlang', 'pembayaran', 'syaratJawaban.syarat', 'cbtSesi']);
 
         return view('mahasiswa.pendaftaran.show', compact('pendaftaran'));
+    }
+
+    /**
+     * Pendaftar mengunggah bukti pembayaran biaya pendaftaran (bukan SPP).
+     */
+    public function bayar(Request $request, Pendaftaran $pendaftaran): RedirectResponse
+    {
+        abort_unless($pendaftaran->user_id === Auth::id(), 403);
+
+        if ($pendaftaran->status !== 'menunggu_pembayaran') {
+            return back()->withErrors(['bayar' => 'Pendaftaran ini tidak memerlukan atau sudah menyelesaikan pembayaran biaya pendaftaran.'])->withInput();
+        }
+
+        $request->validate([
+            'nominal' => 'required|numeric|min:0|max:999999999',
+            'bukti_bayar' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+        ], [
+            'bukti_bayar.required' => 'Bukti pembayaran wajib diunggah.',
+            'bukti_bayar.mimes' => 'Format bukti harus JPG, PNG, atau PDF.',
+            'bukti_bayar.max' => 'Ukuran file maksimal 2 MB.',
+        ]);
+
+        $file = $request->file('bukti_bayar');
+
+        $pendaftaran->pembayaran()->updateOrCreate(
+            ['pendaftaran_id' => $pendaftaran->id],
+            [
+                'nominal' => $request->nominal,
+                'status' => 'menunggu_verifikasi',
+                'bukti_bayar' => $file->store('pembayaran_pendaftaran', 'public'),
+                'file_name' => $file->getClientOriginalName(),
+                'file_size' => $file->getSize(),
+                'tanggal_bayar' => now()->toDateString(),
+                'catatan' => null,
+            ]
+        );
+
+        return redirect()
+            ->route('mahasiswa.pendaftaran.show', $pendaftaran)
+            ->with('success', 'Bukti pembayaran berhasil dikirim. Menunggu verifikasi panitia.');
     }
 
     /**

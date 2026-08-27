@@ -24,28 +24,42 @@
     </div>
 
     <x-ui-card class="mt-6">
-        <form method="GET" action="{{ route('admin.referrer.index') }}" class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div>
-                <x-ui-label for="search">Cari</x-ui-label>
-                <div class="mt-2">
-                    <x-ui-input name="search" id="search" :value="request('search')" placeholder="Kode / Instansi / Nama" />
+        <form method="GET" action="{{ route('admin.referrer.index') }}" class="space-y-4">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div>
+                    <x-ui-label for="search">Cari</x-ui-label>
+                    <div class="mt-2">
+                        <x-ui-input name="search" id="search" :value="request('search')" placeholder="Kode / Instansi / Nama" />
+                    </div>
+                </div>
+
+                <div>
+                    <x-ui-label for="jenis">Jenis</x-ui-label>
+                    <div class="mt-2">
+                        <x-ui-select name="jenis" id="jenis">
+                            <option value="">-- Semua Jenis --</option>
+                            <option value="karyawan" @selected(request('jenis') === 'karyawan')>Karyawan</option>
+                            <option value="mitra" @selected(request('jenis') === 'mitra')>Mitra</option>
+                        </x-ui-select>
+                    </div>
+                </div>
+
+                <div>
+                    <x-ui-label for="tahun_id">Tahun Penerimaan</x-ui-label>
+                    <div class="mt-2">
+                        <x-ui-select name="tahun_id" id="tahun_id">
+                            <option value="">-- Semua Tahun --</option>
+                            @foreach ($tahunList as $t)
+                                <option value="{{ $t->id }}" @selected(request('tahun_id') == $t->id)>{{ $t->kode }}</option>
+                            @endforeach
+                        </x-ui-select>
+                    </div>
                 </div>
             </div>
 
-            <div>
-                <x-ui-label for="jenis">Jenis</x-ui-label>
-                <div class="mt-2">
-                    <x-ui-select name="jenis" id="jenis">
-                        <option value="">-- Semua Jenis --</option>
-                        <option value="karyawan" @selected(request('jenis') === 'karyawan')>Karyawan</option>
-                        <option value="mitra" @selected(request('jenis') === 'mitra')>Mitra</option>
-                    </x-ui-select>
-                </div>
-            </div>
-
-            <div class="flex items-end gap-2">
-                <x-ui-button variant="primary" type="submit">Filter</x-ui-button>
+            <div class="flex items-center justify-end gap-2">
                 <x-ui-button variant="secondary" type="button" :href="route('admin.referrer.index')">Reset</x-ui-button>
+                <x-ui-button variant="primary" type="submit">Filter</x-ui-button>
             </div>
         </form>
     </x-ui-card>

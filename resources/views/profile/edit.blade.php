@@ -4,10 +4,10 @@
 
 @extends($layout)
 
-@section('title', 'Profil')
+@section('title', __('nav.profile'))
 
 @section('content')
-    <x-ui-page-header title="Profil" description="Kelola informasi akun dan keamanan Anda." />
+    <x-ui-page-header :title="__('nav.profile')" :description="__('profile.subtitle')" />
 
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div class="space-y-6 lg:col-span-2">

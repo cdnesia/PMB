@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ in_array(app()->getLocale(), ['ar']) ? 'rtl' : 'ltr' }}">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -34,6 +34,10 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans text-gray-900 antialiased bg-gray-50">
+        <div class="absolute end-4 top-4 z-10">
+            <x-language-switcher />
+        </div>
+
         <div class="flex min-h-screen">
             {{-- Branding panel (desktop) --}}
             <div class="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-slate-900 p-12 lg:flex">
@@ -51,18 +55,18 @@
 
                 <div class="relative">
                     <h1 class="text-3xl font-bold leading-tight text-white">
-                        Penerimaan<br>Mahasiswa Baru
+                        {!! __('guest.brand_title') !!}
                     </h1>
                     <p class="mt-4 max-w-sm text-sm leading-relaxed text-slate-300">
-                        Satu pintu terpadu untuk mendaftar dan memantau proses seleksi masuk perguruan tinggi Anda.
+                        {{ __('guest.brand_subtitle') }}
                     </p>
 
                     <ul class="mt-8 space-y-3">
                         @php
                             $features = [
-                                'Pilih jalur, prodi, dan kelas perkuliahan sesuai minat',
-                                'Lacak status pendaftaran secara real-time',
-                                'Proses seleksi yang transparan dan terukur',
+                                __('guest.feature_1'),
+                                __('guest.feature_2'),
+                                __('guest.feature_3'),
                             ];
                         @endphp
                         @foreach ($features as $feature)
@@ -78,7 +82,7 @@
                     </ul>
                 </div>
 
-                <p class="relative text-xs text-slate-500">© {{ date('Y') }} {{ config('app.name') }}. Seluruh hak cipta.</p>
+                <p class="relative text-xs text-slate-500">© {{ date('Y') }} {{ config('app.name') }}. {{ __('guest.all_rights_reserved') }}</p>
             </div>
 
             {{-- Form panel --}}
@@ -93,7 +97,7 @@
                         </span>
                         <span>
                             <span class="block text-xl font-bold text-gray-900">PMB</span>
-                            <span class="block text-xs text-gray-500">Penerimaan Mahasiswa Baru</span>
+                            <span class="block text-xs text-gray-500">{{ __('guest.tagline') }}</span>
                         </span>
                     </a>
 

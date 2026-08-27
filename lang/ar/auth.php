@@ -1,0 +1,51 @@
+<?php
+
+return [
+    'welcome_title' => 'مرحبًا بك',
+    'login_subtitle' => 'سجّل الدخول لمتابعة تسجيلك.',
+    'email' => 'البريد الإلكتروني',
+    'password' => 'كلمة المرور',
+    'forgot_password' => 'هل نسيت كلمة المرور؟',
+    'remember_me' => 'تذكرني',
+    'login_button' => 'تسجيل الدخول',
+    'no_account' => 'ليس لديك حساب؟',
+    'register_now' => 'سجّل الآن',
+    'login_link' => 'تسجيل الدخول',
+    'have_account' => 'هل لديك حساب بالفعل؟',
+
+    'register_title' => 'إنشاء حساب',
+    'register_subtitle' => 'سجّل لبدء رحلة القبول الخاصة بك.',
+    'full_name' => 'الاسم الكامل',
+    'full_name_placeholder' => 'اسمك',
+    'phone' => 'رقم واتساب / الهاتف',
+    'phone_hint' => 'استخدم رقمًا نشطًا لتلقي تحديثات عملية الاختيار.',
+    'referral_code' => 'رمز الإحالة',
+    'referral_searching' => 'جارٍ البحث...',
+    'referral_min_chars' => 'اكتب حرفين على الأقل',
+    'referral_not_found' => 'لم يتم العثور على رمز الإحالة',
+    'referral_placeholder' => 'اكتب للبحث عن رمز إحالة (اختياري)',
+    'referral_hint' => 'هل لديك رمز من موظف أو مدرسة شريكة؟ اكتبه ثم اخترْه من القائمة.',
+    'password_min_placeholder' => '8 أحرف على الأقل',
+    'confirm_password' => 'تأكيد كلمة المرور',
+    'confirm_password_placeholder' => 'أعد إدخال كلمة المرور',
+    'register_button' => 'تسجيل',
+
+    'forgot_password_title' => 'نسيت كلمة المرور',
+    'forgot_password_subtitle' => 'أدخل بريدك الإلكتروني وسنرسل لك رابطًا لإعادة تعيين كلمة المرور.',
+    'send_reset_link' => 'إرسال رابط إعادة التعيين',
+    'remember_password' => 'هل تتذكر كلمة المرور؟',
+
+    'reset_password_title' => 'إعادة تعيين كلمة المرور',
+    'reset_password_subtitle' => 'أنشئ كلمة مرور جديدة لحسابك.',
+    'new_password' => 'كلمة المرور الجديدة',
+    'reset_password_button' => 'إعادة تعيين كلمة المرور',
+
+    'confirm_password_title' => 'تأكيد كلمة المرور',
+    'confirm_password_subtitle' => 'هذه منطقة آمنة. يرجى تأكيد كلمة المرور قبل المتابعة.',
+    'confirm_button' => 'تأكيد',
+
+    'verify_email_title' => 'تحقق من بريدك الإلكتروني',
+    'verify_email_body' => 'شكرًا لتسجيلك! قبل البدء، يرجى تأكيد عنوان بريدك الإلكتروني بالنقر على الرابط الذي أرسلناه للتو.',
+    'verify_email_sent' => 'تم إرسال رابط تحقق جديد إلى بريدك الإلكتروني.',
+    'resend_verification' => 'إعادة إرسال بريد التحقق',
+];

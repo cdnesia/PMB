@@ -1,0 +1,51 @@
+<?php
+
+return [
+    'welcome_title' => '欢迎',
+    'login_subtitle' => '登录以继续您的报名流程。',
+    'email' => '电子邮箱',
+    'password' => '密码',
+    'forgot_password' => '忘记密码？',
+    'remember_me' => '记住我',
+    'login_button' => '登录',
+    'no_account' => '还没有账号？',
+    'register_now' => '立即注册',
+    'login_link' => '登录',
+    'have_account' => '已经有账号？',
+
+    'register_title' => '创建账号',
+    'register_subtitle' => '注册以开始您的招生申请之旅。',
+    'full_name' => '姓名',
+    'full_name_placeholder' => '您的姓名',
+    'phone' => 'WhatsApp / 电话号码',
+    'phone_hint' => '请使用常用号码以便接收录取相关通知。',
+    'referral_code' => '推荐码',
+    'referral_searching' => '搜索中...',
+    'referral_min_chars' => '请至少输入2个字符',
+    'referral_not_found' => '未找到该推荐码',
+    'referral_placeholder' => '输入以搜索推荐码（选填）',
+    'referral_hint' => '有员工或合作学校提供的推荐码吗？输入后从列表中选择。',
+    'password_min_placeholder' => '至少8位字符',
+    'confirm_password' => '确认密码',
+    'confirm_password_placeholder' => '请再次输入密码',
+    'register_button' => '注册',
+
+    'forgot_password_title' => '忘记密码',
+    'forgot_password_subtitle' => '请输入您的电子邮箱，我们将发送密码重置链接。',
+    'send_reset_link' => '发送重置链接',
+    'remember_password' => '想起密码了？',
+
+    'reset_password_title' => '重置密码',
+    'reset_password_subtitle' => '为您的账号设置新密码。',
+    'new_password' => '新密码',
+    'reset_password_button' => '重置密码',
+
+    'confirm_password_title' => '确认密码',
+    'confirm_password_subtitle' => '这是安全区域，请在继续之前确认您的密码。',
+    'confirm_button' => '确认',
+
+    'verify_email_title' => '验证您的电子邮箱',
+    'verify_email_body' => '感谢您的注册！在开始之前，请点击我们刚刚发送的链接以验证您的电子邮箱地址。',
+    'verify_email_sent' => '新的验证链接已发送至您的电子邮箱。',
+    'resend_verification' => '重新发送验证邮件',
+];

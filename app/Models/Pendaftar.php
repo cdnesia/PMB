@@ -40,6 +40,8 @@ class Pendaftar extends Model
         'kode_pos',
         'asal_sekolah',
         'tahun_lulus',
+        'pekerjaan',
+        'tempat_bekerja',
     ];
 
     protected function casts(): array

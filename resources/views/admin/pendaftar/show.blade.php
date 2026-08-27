@@ -23,9 +23,15 @@
                         Terdaftar {{ $pendaftaran->created_at->format('d M Y, H:i') }}
                     </div>
                 </div>
-                <div class="flex items-center gap-2">
-                    <x-ui-status-badge :status="$pendaftaran->status_pembayaran" />
-                    <x-ui-status-badge :status="$pendaftaran->status" />
+                <div class="flex flex-wrap items-start gap-4">
+                    <div class="text-right">
+                        <div class="text-[11px] font-medium uppercase tracking-wider text-slate-300">Bayar Pendaftaran</div>
+                        <div class="mt-1"><x-ui-status-badge :status="$pendaftaran->status_pembayaran" /></div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-[11px] font-medium uppercase tracking-wider text-slate-300">Status Pendaftaran</div>
+                        <div class="mt-1"><x-ui-status-badge :status="$pendaftaran->status" /></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -138,6 +144,15 @@
                             <div class="rounded-lg bg-gray-50 px-4 py-3">
                                 <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Asal Sekolah</dt>
                                 <dd class="mt-1 text-sm text-gray-900">{{ $p->asal_sekolah }}@if ($p->tahun_lulus) <span class="text-gray-500">(lulus {{ $p->tahun_lulus }})</span>@endif</dd>
+                            </div>
+                            <div class="rounded-lg bg-gray-50 px-4 py-3">
+                                <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Pekerjaan</dt>
+                                <dd class="mt-1 text-sm text-gray-900">
+                                    {{ $p->pekerjaan ?? 'Belum bekerja / tidak diisi' }}
+                                    @if ($p->tempat_bekerja)
+                                        <span class="text-gray-500">— {{ $p->tempat_bekerja }}</span>
+                                    @endif
+                                </dd>
                             </div>
                         </dl>
                     </section>
@@ -284,8 +299,8 @@
                 {{-- Daftar ulang (SPP) --}}
                 @if ($pendaftaran->isLolos() && $pendaftaran->daftarUlang && $pendaftaran->status !== 'mahasiswa_baru')
                     <section class="rounded-xl border border-emerald-200 bg-emerald-50/50 p-5">
-                        <h3 class="text-sm font-semibold text-emerald-900">Verifikasi Daftar Ulang (SPP)</h3>
-                        <p class="mt-1 text-xs text-gray-600">Pendaftar telah mengirim bukti pembayaran uang kuliah.</p>
+                        <h3 class="text-sm font-semibold text-emerald-900">Verifikasi SPP / Uang Kuliah (Daftar Ulang)</h3>
+                        <p class="mt-1 text-xs text-gray-600">Pendaftar telah mengirim bukti pembayaran uang kuliah — terpisah dari biaya pendaftaran di bawah.</p>
 
                         <dl class="mt-3 space-y-2 text-sm">
                             <div class="flex justify-between">
@@ -326,10 +341,65 @@
                     </section>
                 @endif
 
-                {{-- Pembayaran --}}
+                {{-- Pembayaran biaya pendaftaran (bukan SPP/uang kuliah) --}}
                 <section class="rounded-xl border border-gray-200 p-5">
-                    <h3 class="text-sm font-semibold text-gray-900">Validasi Pembayaran</h3>
-                    <p class="mt-1 text-xs text-gray-500">Konfirmasi status pembayaran biaya pendaftaran.</p>
+                    <h3 class="text-sm font-semibold text-gray-900">Validasi Biaya Pendaftaran</h3>
+                    <p class="mt-1 text-xs text-gray-500">Konfirmasi pembayaran biaya formulir/pendaftaran — bukan SPP atau uang kuliah.</p>
+
+                    <dl class="mt-3 space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <dt class="text-gray-500">Tagihan</dt>
+                            <dd class="font-medium text-gray-900">
+                                @if ($pendaftaran->biayaPendaftaranAwal() > 0)
+                                    Rp {{ number_format($pendaftaran->biayaPendaftaranAkhir(), 0, ',', '.') }}
+                                @else
+                                    Gratis
+                                @endif
+                            </dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-gray-500">Status Saat Ini</dt>
+                            <dd><x-ui-status-badge :status="$pendaftaran->status_pembayaran" /></dd>
+                        </div>
+                    </dl>
+
+                    @if ($pendaftaran->pembayaran)
+                        @php $bp = $pendaftaran->pembayaran; @endphp
+                        <div class="mt-4 rounded-lg bg-gray-50 px-4 py-3 text-sm">
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-500">Bukti Diunggah</span>
+                                <x-ui-status-badge :status="$bp->status" />
+                            </div>
+                            <div class="mt-1 flex items-center justify-between">
+                                <span class="text-gray-700">Rp {{ number_format($bp->nominal, 0, ',', '.') }} · {{ $bp->tanggal_bayar?->format('d/m/Y') }}</span>
+                                @if ($bp->bukti_bayar)
+                                    <a href="{{ asset('storage/'.$bp->bukti_bayar) }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-xs font-medium text-indigo-600 hover:text-indigo-700">
+                                        <x-icon name="eye" class="h-3.5 w-3.5" /> Lihat Bukti
+                                    </a>
+                                @endif
+                            </div>
+                            @if ($bp->catatan)
+                                <div class="mt-1 text-xs text-gray-500">Catatan: {{ $bp->catatan }}</div>
+                            @endif
+                        </div>
+
+                        @if ($bp->status === 'menunggu_verifikasi')
+                            <div class="mt-3 flex gap-2">
+                                <form method="POST" action="{{ route('admin.pendaftar.verifikasi-pembayaran', $pendaftaran) }}" class="flex-1">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="status" value="lunas">
+                                    <x-ui-button variant="success" class="w-full" icon="check">Konfirmasi Lunas</x-ui-button>
+                                </form>
+                                <form method="POST" action="{{ route('admin.pendaftar.verifikasi-pembayaran', $pendaftaran) }}" class="flex-1">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="status" value="ditolak">
+                                    <x-ui-button variant="danger" class="w-full">Tolak</x-ui-button>
+                                </form>
+                            </div>
+                        @endif
+                    @endif
 
                     <div class="mt-4 flex gap-2">
                         <form method="POST" action="{{ route('admin.pendaftar.pembayaran', $pendaftaran) }}" class="flex-1">

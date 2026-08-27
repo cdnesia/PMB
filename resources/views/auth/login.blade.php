@@ -1,7 +1,7 @@
 <x-guest-layout>
     <div class="mb-8">
-        <h1 class="text-2xl font-bold tracking-tight text-gray-900">Selamat Datang 👋</h1>
-        <p class="mt-2 text-sm leading-relaxed text-gray-500">Masuk untuk melanjutkan pendaftaran Anda.</p>
+        <h1 class="text-2xl font-bold tracking-tight text-gray-900">{{ __('auth.welcome_title') }} 👋</h1>
+        <p class="mt-2 text-sm leading-relaxed text-gray-500">{{ __('auth.login_subtitle') }}</p>
     </div>
 
     @if (session('status'))
@@ -14,7 +14,7 @@
         @csrf
 
         <div>
-            <x-ui-label for="email" required>Email</x-ui-label>
+            <x-ui-label for="email" required>{{ __('auth.email') }}</x-ui-label>
             <div class="mt-2">
                 <x-ui-input id="email" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" placeholder="nama@email.com" />
             </div>
@@ -25,10 +25,10 @@
 
         <div x-data="{ show: false }">
             <div class="flex items-center justify-between">
-                <x-ui-label for="password" required>Password</x-ui-label>
+                <x-ui-label for="password" required>{{ __('auth.password') }}</x-ui-label>
                 @if (Route::has('password.request'))
                     <a href="{{ route('password.request') }}" class="text-sm font-medium text-indigo-600 transition hover:text-indigo-500">
-                        Lupa password?
+                        {{ __('auth.forgot_password') }}
                     </a>
                 @endif
             </div>
@@ -53,15 +53,15 @@
         <div class="flex items-center justify-between pt-1">
             <label for="remember_me" class="flex cursor-pointer items-center gap-2.5">
                 <input id="remember_me" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" name="remember">
-                <span class="text-sm text-gray-600">Ingat saya</span>
+                <span class="text-sm text-gray-600">{{ __('auth.remember_me') }}</span>
             </label>
         </div>
 
-        <x-ui-button variant="primary" class="w-full" size="lg">Masuk</x-ui-button>
+        <x-ui-button variant="primary" class="w-full" size="lg">{{ __('auth.login_button') }}</x-ui-button>
     </form>
 
     <p class="mt-8 border-t border-gray-200 pt-6 text-center text-sm text-gray-500">
-        Belum punya akun?
-        <a href="{{ route('register') }}" class="font-semibold text-indigo-600 transition hover:text-indigo-500">Daftar sekarang</a>
+        {{ __('auth.no_account') }}
+        <a href="{{ route('register') }}" class="font-semibold text-indigo-600 transition hover:text-indigo-500">{{ __('auth.register_now') }}</a>
     </p>
 </x-guest-layout>

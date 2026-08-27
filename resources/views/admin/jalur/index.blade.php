@@ -61,9 +61,9 @@
                                     <a href="{{ route('admin.jalur.edit', $j) }}" class="rounded-md p-1.5 text-gray-400 transition hover:bg-indigo-50 hover:text-indigo-600" title="Edit">
                                         <x-icon name="pencil" class="h-4 w-4" />
                                     </a>
-                                    <form method="POST" action="{{ route('admin.jalur.destroy', $j) }}" onsubmit="return confirm('Hapus jalur \"{{ $j->nama }}\"?')">
+                                    <form method="POST" action="{{ route('admin.jalur.destroy', $j) }}">
                                         @csrf @method('DELETE')
-                                        <button type="submit" class="rounded-md p-1.5 text-gray-400 transition hover:bg-red-50 hover:text-red-600" title="Hapus">
+                                        <button type="button" x-data x-on:click="$dispatch('confirm-delete', { form: $el.closest('form'), message: 'Hapus jalur \'{{ $j->nama }}\'? Tindakan ini tidak bisa dibatalkan.' })" class="rounded-md p-1.5 text-gray-400 transition hover:bg-red-50 hover:text-red-600" title="Hapus">
                                             <x-icon name="trash" class="h-4 w-4" />
                                         </button>
                                     </form>

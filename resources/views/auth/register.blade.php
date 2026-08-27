@@ -1,16 +1,16 @@
 <x-guest-layout>
     <div class="mb-8">
-        <h1 class="text-2xl font-bold tracking-tight text-gray-900">Buat Akun</h1>
-        <p class="mt-2 text-sm leading-relaxed text-gray-500">Daftar untuk memulai perjalanan seleksi Anda.</p>
+        <h1 class="text-2xl font-bold tracking-tight text-gray-900">{{ __('auth.register_title') }}</h1>
+        <p class="mt-2 text-sm leading-relaxed text-gray-500">{{ __('auth.register_subtitle') }}</p>
     </div>
 
     <form method="POST" action="{{ route('register') }}" class="space-y-5" x-data="{}">
         @csrf
 
         <div>
-            <x-ui-label for="name" required>Nama Lengkap</x-ui-label>
+            <x-ui-label for="name" required>{{ __('auth.full_name') }}</x-ui-label>
             <div class="mt-2">
-                <x-ui-input id="name" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" placeholder="Nama Anda" />
+                <x-ui-input id="name" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" placeholder="{{ __('auth.full_name_placeholder') }}" />
             </div>
             @error('name')
                 <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
@@ -18,7 +18,7 @@
         </div>
 
         <div>
-            <x-ui-label for="email" required>Email</x-ui-label>
+            <x-ui-label for="email" required>{{ __('auth.email') }}</x-ui-label>
             <div class="mt-2">
                 <x-ui-input id="email" type="email" name="email" :value="old('email')" required autocomplete="username" placeholder="nama@email.com" />
             </div>
@@ -28,18 +28,18 @@
         </div>
 
         <div>
-            <x-ui-label for="phone" required>Nomor WA / Telepon</x-ui-label>
+            <x-ui-label for="phone" required>{{ __('auth.phone') }}</x-ui-label>
             <div class="mt-2">
                 <x-ui-input id="phone" type="tel" name="phone" :value="old('phone')" required autocomplete="tel" inputmode="numeric" placeholder="08xx xxxx xxxx" />
             </div>
-            <p class="mt-1.5 text-xs text-gray-400">Gunakan nomor aktif untuk menerima informasi seleksi.</p>
+            <p class="mt-1.5 text-xs text-gray-400">{{ __('auth.phone_hint') }}</p>
             @error('phone')
                 <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
             @enderror
         </div>
 
         <div>
-            <x-ui-label for="kode_referral">Kode Referral</x-ui-label>
+            <x-ui-label for="kode_referral">{{ __('auth.referral_code') }}</x-ui-label>
             <div class="mt-2">
                 <select name="kode_referral" id="kode_referral" x-select2="{
                         ajax: {
@@ -52,11 +52,11 @@
                         minimumInputLength: 2,
                         allowClear: true,
                         language: {
-                            searching: () => 'Mencari...',
-                            inputTooShort: () => 'Ketik minimal 2 karakter',
-                            noResults: () => 'Kode referral tidak ditemukan',
+                            searching: () => '{{ __('auth.referral_searching') }}',
+                            inputTooShort: () => '{{ __('auth.referral_min_chars') }}',
+                            noResults: () => '{{ __('auth.referral_not_found') }}',
                         },
-                        placeholder: 'Ketik untuk mencari kode referral (opsional)',
+                        placeholder: '{{ __('auth.referral_placeholder') }}',
                     }"
                     class="block w-full rounded-lg border-0 px-3 py-2.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
                     @if (old('kode_referral'))
@@ -64,16 +64,16 @@
                     @endif
                 </select>
             </div>
-            <p class="mt-1.5 text-xs text-gray-400">Punya kode dari karyawan atau mitra sekolah? Ketik kodenya, lalu pilih dari daftar.</p>
+            <p class="mt-1.5 text-xs text-gray-400">{{ __('auth.referral_hint') }}</p>
             @error('kode_referral')
                 <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
             @enderror
         </div>
 
         <div x-data="{ show: false }">
-            <x-ui-label for="password" required>Password</x-ui-label>
+            <x-ui-label for="password" required>{{ __('auth.password') }}</x-ui-label>
             <div class="relative mt-2">
-                <input id="password" :type="show ? 'text' : 'password'" name="password" required autocomplete="new-password" placeholder="Min. 8 karakter"
+                <input id="password" :type="show ? 'text' : 'password'" name="password" required autocomplete="new-password" placeholder="{{ __('auth.password_min_placeholder') }}"
                        class="block w-full rounded-lg border-0 py-2.5 pl-3 pr-11 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
                 <button type="button" @click="show = !show" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 transition hover:text-gray-600">
                     <svg x-show="!show" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -91,9 +91,9 @@
         </div>
 
         <div x-data="{ show: false }">
-            <x-ui-label for="password_confirmation" required>Konfirmasi Password</x-ui-label>
+            <x-ui-label for="password_confirmation" required>{{ __('auth.confirm_password') }}</x-ui-label>
             <div class="relative mt-2">
-                <input id="password_confirmation" :type="show ? 'text' : 'password'" name="password_confirmation" required autocomplete="new-password" placeholder="Ulangi password"
+                <input id="password_confirmation" :type="show ? 'text' : 'password'" name="password_confirmation" required autocomplete="new-password" placeholder="{{ __('auth.confirm_password_placeholder') }}"
                        class="block w-full rounded-lg border-0 py-2.5 pl-3 pr-11 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
                 <button type="button" @click="show = !show" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 transition hover:text-gray-600">
                     <svg x-show="!show" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -110,11 +110,11 @@
             @enderror
         </div>
 
-        <x-ui-button variant="primary" class="w-full" size="lg">Daftar</x-ui-button>
+        <x-ui-button variant="primary" class="w-full" size="lg">{{ __('auth.register_button') }}</x-ui-button>
     </form>
 
     <p class="mt-8 border-t border-gray-200 pt-6 text-center text-sm text-gray-500">
-        Sudah punya akun?
-        <a href="{{ route('login') }}" class="font-semibold text-indigo-600 transition hover:text-indigo-500">Masuk</a>
+        {{ __('auth.have_account') }}
+        <a href="{{ route('login') }}" class="font-semibold text-indigo-600 transition hover:text-indigo-500">{{ __('auth.login_link') }}</a>
     </p>
 </x-guest-layout>

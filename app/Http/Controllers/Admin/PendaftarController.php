@@ -67,6 +67,7 @@ class PendaftarController extends Controller
             'dokumen.dokumenPersyaratan',
             'pendaftar',
             'daftarUlang',
+            'pembayaran',
             'syaratJawaban.syarat',
             'cbtSesi',
         ]);
@@ -93,6 +94,35 @@ class PendaftarController extends Controller
         }
 
         return back()->with('success', 'Status pembayaran diperbarui.');
+    }
+
+    public function verifikasiPembayaran(Request $request, Pendaftaran $pendaftaran): RedirectResponse
+    {
+        $request->validate([
+            'status' => 'required|in:lunas,ditolak',
+            'catatan' => 'nullable|string|max:500',
+        ]);
+
+        $pembayaran = $pendaftaran->pembayaran;
+
+        if (! $pembayaran) {
+            return back()->withErrors(['pembayaran' => 'Pendaftar belum mengirim bukti pembayaran.']);
+        }
+
+        $pembayaran->update([
+            'status' => $request->status,
+            'catatan' => $request->input('catatan'),
+        ]);
+
+        if ($request->status === 'lunas') {
+            $pendaftaran->update(['status' => 'lunas', 'status_pembayaran' => 'lunas']);
+
+            app(PendaftaranNotificationService::class)->sendPembayaranDiterima($pendaftaran);
+
+            return back()->with('success', 'Pembayaran biaya pendaftaran dikonfirmasi lunas.');
+        }
+
+        return back()->with('success', 'Bukti pembayaran ditolak. Pendaftar dapat mengunggah ulang.');
     }
 
     public function verifikasiDokumen(Request $request, DokumenPendaftar $dokumen): RedirectResponse

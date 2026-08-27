@@ -193,6 +193,8 @@
                 }
             @endphp
             <x-toast :items="$toasts" />
+
+            <x-confirm-delete-modal />
         </div>
 
         @stack('scripts')

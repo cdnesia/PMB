@@ -8,53 +8,55 @@
     @include('admin.pendaftar.partials.status-legend')
 
     <x-ui-card class="mt-6">
-        <form method="GET" action="{{ route('admin.pendaftar.index') }}" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            <div>
-                <x-ui-label for="q">Cari</x-ui-label>
-                <div class="mt-2">
-                    <x-ui-input name="q" id="q" :value="request('q')" placeholder="Nama / Email / No. Pendaftaran" />
+        <form method="GET" action="{{ route('admin.pendaftar.index') }}" class="space-y-4">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div>
+                    <x-ui-label for="q">Cari</x-ui-label>
+                    <div class="mt-2">
+                        <x-ui-input name="q" id="q" :value="request('q')" placeholder="Nama / Email / No. Pendaftaran" />
+                    </div>
+                </div>
+
+                <div>
+                    <x-ui-label for="jalur_id">Jalur</x-ui-label>
+                    <div class="mt-2">
+                        <x-ui-select name="jalur_id" id="jalur_id">
+                            <option value="">-- Semua Jalur --</option>
+                            @foreach ($jalurList as $j)
+                                <option value="{{ $j->id }}" @selected(request('jalur_id') == $j->id)>{{ $j->nama }}</option>
+                            @endforeach
+                        </x-ui-select>
+                    </div>
+                </div>
+
+                <div>
+                    <x-ui-label for="prodi_id">Prodi</x-ui-label>
+                    <div class="mt-2">
+                        <x-ui-select name="prodi_id" id="prodi_id">
+                            <option value="">-- Semua Prodi --</option>
+                            @foreach ($prodiList as $p)
+                                <option value="{{ $p->id }}" @selected(request('prodi_id') == $p->id)>{{ $p->jenjang ? $p->jenjang.' - ' : '' }}{{ $p->nama }}</option>
+                            @endforeach
+                        </x-ui-select>
+                    </div>
+                </div>
+
+                <div>
+                    <x-ui-label for="status">Status</x-ui-label>
+                    <div class="mt-2">
+                        <x-ui-select name="status" id="status">
+                            <option value="">-- Semua Status --</option>
+                            @foreach (['draft', 'menunggu_pembayaran', 'lunas', 'terverifikasi', 'lolos', 'cadangan', 'tidak_lolos', 'daftar_ulang', 'mahasiswa_baru', 'ditolak'] as $s)
+                                <option value="{{ $s }}" @selected(request('status') === $s)>{{ str_replace('_', ' ', ucfirst($s)) }}</option>
+                            @endforeach
+                        </x-ui-select>
+                    </div>
                 </div>
             </div>
 
-            <div>
-                <x-ui-label for="jalur_id">Jalur</x-ui-label>
-                <div class="mt-2">
-                    <x-ui-select name="jalur_id" id="jalur_id">
-                        <option value="">-- Semua Jalur --</option>
-                        @foreach ($jalurList as $j)
-                            <option value="{{ $j->id }}" @selected(request('jalur_id') == $j->id)>{{ $j->nama }}</option>
-                        @endforeach
-                    </x-ui-select>
-                </div>
-            </div>
-
-            <div>
-                <x-ui-label for="prodi_id">Prodi</x-ui-label>
-                <div class="mt-2">
-                    <x-ui-select name="prodi_id" id="prodi_id">
-                        <option value="">-- Semua Prodi --</option>
-                        @foreach ($prodiList as $p)
-                            <option value="{{ $p->id }}" @selected(request('prodi_id') == $p->id)>{{ $p->jenjang ? $p->jenjang.' - ' : '' }}{{ $p->nama }}</option>
-                        @endforeach
-                    </x-ui-select>
-                </div>
-            </div>
-
-            <div>
-                <x-ui-label for="status">Status</x-ui-label>
-                <div class="mt-2">
-                    <x-ui-select name="status" id="status">
-                        <option value="">-- Semua Status --</option>
-                        @foreach (['draft', 'menunggu_pembayaran', 'lunas', 'terverifikasi', 'lolos', 'cadangan', 'tidak_lolos', 'daftar_ulang', 'mahasiswa_baru', 'ditolak'] as $s)
-                            <option value="{{ $s }}" @selected(request('status') === $s)>{{ str_replace('_', ' ', ucfirst($s)) }}</option>
-                        @endforeach
-                    </x-ui-select>
-                </div>
-            </div>
-
-            <div class="flex items-end gap-2">
-                <x-ui-button variant="primary" type="submit">Filter</x-ui-button>
+            <div class="flex items-center justify-end gap-2">
                 <x-ui-button variant="secondary" type="button" :href="route('admin.pendaftar.index')">Reset</x-ui-button>
+                <x-ui-button variant="primary" type="submit">Filter</x-ui-button>
             </div>
         </form>
     </x-ui-card>

@@ -10,45 +10,47 @@
     </x-ui-page-header>
 
     <x-ui-card>
-        <form method="GET" action="{{ route('admin.dokumen.index') }}" class="grid grid-cols-1 gap-4 sm:grid-cols-4">
-            <div>
-                <x-ui-label for="jalur_id">Jalur</x-ui-label>
-                <div class="mt-2">
-                    <x-ui-select name="jalur_id" id="jalur_id">
-                        <option value="">-- Semua Jalur --</option>
-                        @foreach ($jalurList as $j)
-                            <option value="{{ $j->id }}" @selected(request('jalur_id') == $j->id)>{{ $j->nama }}</option>
-                        @endforeach
-                    </x-ui-select>
+        <form method="GET" action="{{ route('admin.dokumen.index') }}" class="space-y-4">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div>
+                    <x-ui-label for="jalur_id">Jalur</x-ui-label>
+                    <div class="mt-2">
+                        <x-ui-select name="jalur_id" id="jalur_id">
+                            <option value="">-- Semua Jalur --</option>
+                            @foreach ($jalurList as $j)
+                                <option value="{{ $j->id }}" @selected(request('jalur_id') == $j->id)>{{ $j->nama }}</option>
+                            @endforeach
+                        </x-ui-select>
+                    </div>
+                </div>
+
+                <div>
+                    <x-ui-label for="prodi_id">Prodi</x-ui-label>
+                    <div class="mt-2">
+                        <x-ui-select name="prodi_id" id="prodi_id">
+                            <option value="">-- Semua Prodi --</option>
+                            @foreach ($prodiList as $p)
+                                <option value="{{ $p->id }}" @selected(request('prodi_id') == $p->id)>{{ $p->jenjang ? $p->jenjang.' - ' : '' }}{{ $p->nama }}</option>
+                            @endforeach
+                        </x-ui-select>
+                    </div>
+                </div>
+
+                <div>
+                    <x-ui-label for="scope">Kategori</x-ui-label>
+                    <div class="mt-2">
+                        <x-ui-select name="scope" id="scope">
+                            <option value="">-- Semua --</option>
+                            <option value="jalur" @selected(request('scope') === 'jalur')>Berdasarkan Jalur</option>
+                            <option value="prodi" @selected(request('scope') === 'prodi')>Berdasarkan Prodi</option>
+                        </x-ui-select>
+                    </div>
                 </div>
             </div>
 
-            <div>
-                <x-ui-label for="prodi_id">Prodi</x-ui-label>
-                <div class="mt-2">
-                    <x-ui-select name="prodi_id" id="prodi_id">
-                        <option value="">-- Semua Prodi --</option>
-                        @foreach ($prodiList as $p)
-                            <option value="{{ $p->id }}" @selected(request('prodi_id') == $p->id)>{{ $p->jenjang ? $p->jenjang.' - ' : '' }}{{ $p->nama }}</option>
-                        @endforeach
-                    </x-ui-select>
-                </div>
-            </div>
-
-            <div>
-                <x-ui-label for="scope">Kategori</x-ui-label>
-                <div class="mt-2">
-                    <x-ui-select name="scope" id="scope">
-                        <option value="">-- Semua --</option>
-                        <option value="jalur" @selected(request('scope') === 'jalur')>Berdasarkan Jalur</option>
-                        <option value="prodi" @selected(request('scope') === 'prodi')>Berdasarkan Prodi</option>
-                    </x-ui-select>
-                </div>
-            </div>
-
-            <div class="flex items-end gap-2">
-                <x-ui-button variant="primary" type="submit">Filter</x-ui-button>
+            <div class="flex items-center justify-end gap-2">
                 <x-ui-button variant="secondary" type="button" :href="route('admin.dokumen.index')">Reset</x-ui-button>
+                <x-ui-button variant="primary" type="submit">Filter</x-ui-button>
             </div>
         </form>
     </x-ui-card>
@@ -83,9 +85,9 @@
                                     <a href="{{ route('admin.dokumen.edit', $d) }}" class="rounded-md p-1.5 text-gray-400 transition hover:bg-indigo-50 hover:text-indigo-600" title="Edit">
                                         <x-icon name="pencil" class="h-4 w-4" />
                                     </a>
-                                    <form method="POST" action="{{ route('admin.dokumen.destroy', $d) }}" onsubmit="return confirm('Hapus dokumen \"{{ $d->nama }}\"?')">
+                                    <form method="POST" action="{{ route('admin.dokumen.destroy', $d) }}">
                                         @csrf @method('DELETE')
-                                        <button type="submit" class="rounded-md p-1.5 text-gray-400 transition hover:bg-red-50 hover:text-red-600" title="Hapus">
+                                        <button type="button" x-data x-on:click="$dispatch('confirm-delete', { form: $el.closest('form'), message: 'Hapus dokumen \'{{ $d->nama }}\'? Tindakan ini tidak bisa dibatalkan.' })" class="rounded-md p-1.5 text-gray-400 transition hover:bg-red-50 hover:text-red-600" title="Hapus">
                                             <x-icon name="trash" class="h-4 w-4" />
                                         </button>
                                     </form>

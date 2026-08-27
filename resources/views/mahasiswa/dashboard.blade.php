@@ -1,14 +1,14 @@
 @extends('layouts.mahasiswa')
 
-@section('title', 'Beranda')
+@section('title', __('nav.home'))
 
 @section('content')
     <div class="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-            <h1 class="text-2xl font-bold tracking-tight text-gray-900">Halo, {{ Auth::user()->name }} 👋</h1>
-            <p class="mt-1 text-gray-500">Kelola pendaftaran Anda untuk Penerimaan Mahasiswa Baru.</p>
+            <h1 class="text-2xl font-bold tracking-tight text-gray-900">{{ __('dashboard.greeting', ['name' => Auth::user()->name]) }} 👋</h1>
+            <p class="mt-1 text-gray-500">{{ __('dashboard.subtitle') }}</p>
         </div>
-        <x-ui-button variant="primary" :href="route('mahasiswa.pendaftaran.create')" icon="plus">Daftar Sekarang</x-ui-button>
+        <x-ui-button variant="primary" :href="route('mahasiswa.pendaftaran.create')" icon="plus">{{ __('dashboard.register_now') }}</x-ui-button>
     </div>
 
     @forelse ($pendaftaran as $p)
@@ -37,10 +37,10 @@
             <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-indigo-50">
                 <x-icon name="document" class="h-8 w-8 text-indigo-400" />
             </div>
-            <h2 class="mt-4 text-lg font-semibold text-gray-900">Belum ada pendaftaran</h2>
-            <p class="mt-1 text-sm text-gray-500">Mulai perjalanan Anda dengan mendaftar sekarang.</p>
+            <h2 class="mt-4 text-lg font-semibold text-gray-900">{{ __('dashboard.empty_title') }}</h2>
+            <p class="mt-1 text-sm text-gray-500">{{ __('dashboard.empty_subtitle') }}</p>
             <div class="mt-6">
-                <x-ui-button variant="primary" :href="route('mahasiswa.pendaftaran.create')" icon="plus">Daftar Sekarang</x-ui-button>
+                <x-ui-button variant="primary" :href="route('mahasiswa.pendaftaran.create')" icon="plus">{{ __('dashboard.register_now') }}</x-ui-button>
             </div>
         </div>
     @endforelse

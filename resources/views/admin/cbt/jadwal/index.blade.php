@@ -10,21 +10,24 @@
     </x-ui-page-header>
 
     <x-ui-card>
-        <form method="GET" action="{{ route('admin.cbt-jadwal.index') }}" class="grid grid-cols-1 gap-4 sm:grid-cols-4">
-            <div class="sm:col-span-2">
-                <x-ui-label for="jalur_id">Jalur</x-ui-label>
-                <div class="mt-2">
-                    <x-ui-select name="jalur_id" id="jalur_id">
-                        <option value="">-- Semua Jalur --</option>
-                        @foreach ($jalurList as $j)
-                            <option value="{{ $j->id }}" @selected(request('jalur_id') == $j->id)>{{ $j->nama }}</option>
-                        @endforeach
-                    </x-ui-select>
+        <form method="GET" action="{{ route('admin.cbt-jadwal.index') }}" class="space-y-4">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-4">
+                <div class="sm:col-span-2">
+                    <x-ui-label for="jalur_id">Jalur</x-ui-label>
+                    <div class="mt-2">
+                        <x-ui-select name="jalur_id" id="jalur_id">
+                            <option value="">-- Semua Jalur --</option>
+                            @foreach ($jalurList as $j)
+                                <option value="{{ $j->id }}" @selected(request('jalur_id') == $j->id)>{{ $j->nama }}</option>
+                            @endforeach
+                        </x-ui-select>
+                    </div>
                 </div>
             </div>
-            <div class="flex items-end gap-2">
-                <x-ui-button variant="primary" type="submit">Filter</x-ui-button>
+
+            <div class="flex items-center justify-end gap-2">
                 <x-ui-button variant="secondary" type="button" :href="route('admin.cbt-jadwal.index')">Reset</x-ui-button>
+                <x-ui-button variant="primary" type="submit">Filter</x-ui-button>
             </div>
         </form>
     </x-ui-card>
@@ -85,9 +88,9 @@
                                     <a href="{{ route('admin.cbt-jadwal.edit', $j) }}" class="rounded-md p-1.5 text-gray-400 transition hover:bg-indigo-50 hover:text-indigo-600" title="Edit">
                                         <x-icon name="pencil" class="h-4 w-4" />
                                     </a>
-                                    <form method="POST" action="{{ route('admin.cbt-jadwal.destroy', $j) }}" onsubmit="return confirm('Hapus jadwal \"{{ $j->nama }}\"?')">
+                                    <form method="POST" action="{{ route('admin.cbt-jadwal.destroy', $j) }}">
                                         @csrf @method('DELETE')
-                                        <button type="submit" class="rounded-md p-1.5 text-gray-400 transition hover:bg-red-50 hover:text-red-600" title="Hapus">
+                                        <button type="button" x-data x-on:click="$dispatch('confirm-delete', { form: $el.closest('form'), message: 'Hapus jadwal \'{{ $j->nama }}\'? Tindakan ini tidak bisa dibatalkan.' })" class="rounded-md p-1.5 text-gray-400 transition hover:bg-red-50 hover:text-red-600" title="Hapus">
                                             <x-icon name="trash" class="h-4 w-4" />
                                         </button>
                                     </form>

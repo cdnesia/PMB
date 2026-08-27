@@ -1,7 +1,7 @@
 <x-guest-layout>
-    <h1 class="text-xl font-bold text-gray-900">Lupa Password</h1>
+    <h1 class="text-xl font-bold text-gray-900">{{ __('auth.forgot_password_title') }}</h1>
     <p class="mt-1 text-sm text-gray-500">
-        Masukkan email Anda dan kami akan mengirimkan tautan untuk mereset password.
+        {{ __('auth.forgot_password_subtitle') }}
     </p>
 
     @if (session('status'))
@@ -14,7 +14,7 @@
         @csrf
 
         <div>
-            <x-ui-label for="email" required>Email</x-ui-label>
+            <x-ui-label for="email" required>{{ __('auth.email') }}</x-ui-label>
             <div class="mt-2">
                 <x-ui-input id="email" type="email" name="email" :value="old('email')" required autofocus placeholder="nama@email.com" />
             </div>
@@ -24,12 +24,12 @@
         </div>
 
         <div class="flex items-center justify-end">
-            <x-ui-button variant="primary">Kirim Tautan Reset</x-ui-button>
+            <x-ui-button variant="primary">{{ __('auth.send_reset_link') }}</x-ui-button>
         </div>
 
         <p class="text-center text-sm text-gray-500">
-            Ingat password?
-            <a href="{{ route('login') }}" class="font-medium text-indigo-600 hover:text-indigo-500">Masuk</a>
+            {{ __('auth.remember_password') }}
+            <a href="{{ route('login') }}" class="font-medium text-indigo-600 hover:text-indigo-500">{{ __('auth.login_link') }}</a>
         </p>
     </form>
 </x-guest-layout>

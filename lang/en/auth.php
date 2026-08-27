@@ -1,0 +1,51 @@
+<?php
+
+return [
+    'welcome_title' => 'Welcome',
+    'login_subtitle' => 'Sign in to continue your registration.',
+    'email' => 'Email',
+    'password' => 'Password',
+    'forgot_password' => 'Forgot password?',
+    'remember_me' => 'Remember me',
+    'login_button' => 'Sign In',
+    'no_account' => "Don't have an account?",
+    'register_now' => 'Register now',
+    'login_link' => 'Sign In',
+    'have_account' => 'Already have an account?',
+
+    'register_title' => 'Create an Account',
+    'register_subtitle' => 'Sign up to start your admission journey.',
+    'full_name' => 'Full Name',
+    'full_name_placeholder' => 'Your name',
+    'phone' => 'WhatsApp / Phone Number',
+    'phone_hint' => 'Use an active number to receive selection updates.',
+    'referral_code' => 'Referral Code',
+    'referral_searching' => 'Searching...',
+    'referral_min_chars' => 'Type at least 2 characters',
+    'referral_not_found' => 'Referral code not found',
+    'referral_placeholder' => 'Type to search a referral code (optional)',
+    'referral_hint' => 'Have a code from an employee or partner school? Type it in and pick it from the list.',
+    'password_min_placeholder' => 'Min. 8 characters',
+    'confirm_password' => 'Confirm Password',
+    'confirm_password_placeholder' => 'Re-enter password',
+    'register_button' => 'Register',
+
+    'forgot_password_title' => 'Forgot Password',
+    'forgot_password_subtitle' => "Enter your email and we'll send you a password reset link.",
+    'send_reset_link' => 'Send Reset Link',
+    'remember_password' => 'Remember your password?',
+
+    'reset_password_title' => 'Reset Password',
+    'reset_password_subtitle' => 'Create a new password for your account.',
+    'new_password' => 'New Password',
+    'reset_password_button' => 'Reset Password',
+
+    'confirm_password_title' => 'Confirm Password',
+    'confirm_password_subtitle' => 'This is a secure area. Please confirm your password before continuing.',
+    'confirm_button' => 'Confirm',
+
+    'verify_email_title' => 'Verify Your Email',
+    'verify_email_body' => 'Thanks for signing up! Before getting started, please verify your email address by clicking the link we just sent you.',
+    'verify_email_sent' => 'A new verification link has been sent to your email address.',
+    'resend_verification' => 'Resend Verification Email',
+];

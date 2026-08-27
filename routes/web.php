@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\ReferrerController as AdminReferrerController;
 use App\Http\Controllers\Admin\SettingProdiController;
 use App\Http\Controllers\Admin\TahunPenerimaanController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\Mahasiswa\CbtController as MahasiswaCbtController;
 use App\Http\Controllers\Mahasiswa\DashboardController as MahasiswaDashboardController;
 use App\Http\Controllers\Mahasiswa\PendaftaranController;
@@ -36,6 +37,9 @@ Route::get('/', function () {
 
 // Pencarian kode referral untuk dropdown di form registrasi (publik, tanpa login)
 Route::get('/referral/search', [ReferralController::class, 'search'])->name('referral.search')->middleware('throttle:30,1');
+
+// Ganti bahasa tampilan (sisi pendaftar/mahasiswa) — disimpan di session.
+Route::get('/bahasa/{locale}', [LocaleController::class, 'set'])->name('locale.set');
 
 Route::get('/dashboard', function () {
     $user = Auth::user();
@@ -81,6 +85,7 @@ Route::middleware(['auth', 'role:super-admin|admin-pmb'])->prefix('admin')->name
     Route::get('pendaftar', [PendaftarController::class, 'index'])->name('pendaftar.index');
     Route::get('pendaftar/{pendaftaran}', [PendaftarController::class, 'show'])->name('pendaftar.show');
     Route::patch('pendaftar/{pendaftaran}/pembayaran', [PendaftarController::class, 'updatePembayaran'])->name('pendaftar.pembayaran');
+    Route::patch('pendaftar/{pendaftaran}/verifikasi-pembayaran', [PendaftarController::class, 'verifikasiPembayaran'])->name('pendaftar.verifikasi-pembayaran');
     Route::patch('pendaftar/{pendaftaran}/verifikasi-berkas', [PendaftarController::class, 'verifikasiBerkas'])->name('pendaftar.verifikasi-berkas');
     Route::patch('pendaftar/{pendaftaran}/nilai', [PendaftarController::class, 'inputNilai'])->name('pendaftar.nilai');
     Route::patch('pendaftar/{pendaftaran}/status', [PendaftarController::class, 'updateStatus'])->name('pendaftar.status');
@@ -122,6 +127,7 @@ Route::middleware(['auth', 'role:mahasiswa'])->prefix('mahasiswa')->name('mahasi
     Route::get('/pendaftaran/create', [PendaftaranController::class, 'create'])->name('pendaftaran.create');
     Route::post('/pendaftaran', [PendaftaranController::class, 'store'])->name('pendaftaran.store');
     Route::get('/pendaftaran/{pendaftaran}', [PendaftaranController::class, 'show'])->name('pendaftaran.show');
+    Route::post('/pendaftaran/{pendaftaran}/bayar', [PendaftaranController::class, 'bayar'])->name('pendaftaran.bayar');
     Route::post('/pendaftaran/{pendaftaran}/daftar-ulang', [PendaftaranController::class, 'daftarUlang'])->name('pendaftaran.daftar-ulang');
 
     Route::get('/cbt', [MahasiswaCbtController::class, 'index'])->name('cbt.index');

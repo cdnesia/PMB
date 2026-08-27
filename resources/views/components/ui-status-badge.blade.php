@@ -2,29 +2,30 @@
 
 @php
     $map = [
-        'aktif' => ['Aktif', 'green'],
-        'draft' => ['Draft', 'amber'],
-        'ditutup' => ['Ditutup', 'gray'],
-        'arsip' => ['Arsip', 'gray'],
-        'lolos' => ['Lolos', 'green'],
-        'cadangan' => ['Cadangan', 'amber'],
-        'tidak_lolos' => ['Tidak Lolos', 'red'],
-        'menunggu_pembayaran' => ['Menunggu Bayar', 'amber'],
-        'lunas' => ['Lunas', 'green'],
-        'terverifikasi' => ['Terverifikasi', 'blue'],
-        'daftar_ulang' => ['Daftar Ulang', 'blue'],
-        'mahasiswa_baru' => ['Mahasiswa Baru', 'green'],
-        'ditolak' => ['Ditolak', 'red'],
-        'menunggu' => ['Menunggu', 'amber'],
-        'menunggu_verifikasi' => ['Menunggu Verifikasi', 'amber'],
-        'belum_diunggah' => ['Belum Diunggah', 'gray'],
-        'belum_bayar' => ['Belum Bayar', 'red'],
-        'buka' => ['Buka', 'green'],
-        'tutup' => ['Tutup', 'gray'],
+        'aktif' => ['status.aktif', 'green'],
+        'draft' => ['status.draft', 'amber'],
+        'ditutup' => ['status.ditutup', 'gray'],
+        'arsip' => ['status.arsip', 'gray'],
+        'lolos' => ['status.lolos', 'green'],
+        'cadangan' => ['status.cadangan', 'amber'],
+        'tidak_lolos' => ['status.tidak_lolos', 'red'],
+        'menunggu_pembayaran' => ['status.menunggu_pembayaran', 'amber'],
+        'lunas' => ['status.lunas', 'green'],
+        'terverifikasi' => ['status.terverifikasi', 'blue'],
+        'daftar_ulang' => ['status.daftar_ulang', 'blue'],
+        'mahasiswa_baru' => ['status.mahasiswa_baru', 'green'],
+        'ditolak' => ['status.ditolak', 'red'],
+        'menunggu' => ['status.menunggu', 'amber'],
+        'menunggu_verifikasi' => ['status.menunggu_verifikasi', 'amber'],
+        'belum_diunggah' => ['status.belum_diunggah', 'gray'],
+        'belum_bayar' => ['status.belum_bayar', 'red'],
+        'buka' => ['status.buka', 'green'],
+        'tutup' => ['status.tutup', 'gray'],
     ];
 
     $key = $status ?? 'draft';
-    [$label, $color] = $map[$key] ?? [str_replace('_', ' ', $key), 'gray'];
+    [$labelKey, $color] = $map[$key] ?? [null, 'gray'];
+    $label = $labelKey ? __($labelKey) : str_replace('_', ' ', $key);
 @endphp
 
 <x-ui-badge :color="$color">{{ $label }}</x-ui-badge>
