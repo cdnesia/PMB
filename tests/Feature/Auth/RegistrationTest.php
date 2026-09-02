@@ -117,4 +117,29 @@ class RegistrationTest extends TestCase
         $user = User::where('email', 'noreferral@example.com')->firstOrFail();
         $this->assertNull($user->referrer_id);
     }
+
+    public function test_failed_registration_keeps_all_input_except_password(): void
+    {
+        $this->seed(\Database\Seeders\RolePermissionSeeder::class);
+        $sumber = SumberInformasi::create(['kode' => 'TEMAN', 'nama' => 'Teman']);
+
+        $response = $this->from('/register')->post('/register', [
+            'name' => 'Test User',
+            'email' => 'bukan-email-valid',
+            'phone' => '081234567895',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+            'kode_referral' => 'TIDAK-ADA',
+            'sumber_informasi_id' => $sumber->id,
+        ]);
+
+        $response->assertSessionHasErrors('email');
+        $response->assertSessionHasInput('name', 'Test User');
+        $response->assertSessionHasInput('email', 'bukan-email-valid');
+        $response->assertSessionHasInput('phone', '081234567895');
+        $response->assertSessionHasInput('kode_referral', 'TIDAK-ADA');
+        $response->assertSessionHasInput('sumber_informasi_id', $sumber->id);
+        $response->assertSessionMissing('_old_input.password');
+        $response->assertSessionMissing('_old_input.password_confirmation');
+    }
 }
