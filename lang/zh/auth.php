@@ -19,6 +19,8 @@ return [
     'full_name_placeholder' => '您的姓名',
     'phone' => 'WhatsApp / 电话号码',
     'phone_hint' => '请使用常用号码以便接收录取相关通知。',
+    'sumber_informasi' => '您是从哪里了解到 UM Jambi 的？',
+    'sumber_informasi_placeholder' => '请选择',
     'referral_code' => '推荐码',
     'referral_searching' => '搜索中...',
     'referral_min_chars' => '请至少输入2个字符',

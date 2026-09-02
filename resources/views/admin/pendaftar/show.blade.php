@@ -56,6 +56,10 @@
                             <dd class="mt-1 text-sm font-medium text-gray-900">{{ $pendaftaran->user?->phone ?? '—' }}</dd>
                         </div>
                         <div class="rounded-lg bg-gray-50 px-4 py-3">
+                            <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Sumber Informasi</dt>
+                            <dd class="mt-1 text-sm font-medium text-gray-900">{{ $pendaftaran->user?->sumberInformasi?->nama ?? '—' }}</dd>
+                        </div>
+                        <div class="rounded-lg bg-gray-50 px-4 py-3">
                             <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Jalur</dt>
                             <dd class="mt-1 text-sm font-medium text-gray-900">
                                 {{ $pendaftaran->jalur?->nama }}

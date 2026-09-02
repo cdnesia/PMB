@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\Referrer;
+use App\Models\SumberInformasi;
 use App\Models\User;
 use App\Services\PendaftaranNotificationService;
 use Illuminate\Auth\Events\Registered;
@@ -22,7 +23,9 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        return view('auth.register');
+        $sumberInformasiList = SumberInformasi::where('is_active', true)->orderBy('urutan')->orderBy('nama')->get();
+
+        return view('auth.register', compact('sumberInformasiList'));
     }
 
     /**
@@ -44,6 +47,7 @@ class RegisteredUserController extends Controller
             'phone' => ['required', 'digits_between:10,15', 'regex:/^(0|62)/', 'unique:'.User::class.',phone'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'kode_referral' => ['nullable', 'string', 'max:30'],
+            'sumber_informasi_id' => ['required', 'uuid', 'exists:sumber_informasi,id'],
         ]);
 
         $referrer = null;
@@ -63,6 +67,7 @@ class RegisteredUserController extends Controller
             'phone' => $request->phone,
             'password' => Hash::make($request->password),
             'referrer_id' => $referrer?->id,
+            'sumber_informasi_id' => $request->sumber_informasi_id,
         ]);
 
         $user->assignRole('mahasiswa');

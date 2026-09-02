@@ -73,6 +73,7 @@
                                 'Promo' => ['icon' => 'credit-card', 'route' => 'admin.promo.index', 'match' => 'admin.promo.*'],
                                 'Setting Prodi' => ['icon' => 'adjust', 'route' => 'admin.setting-prodi.index', 'match' => 'admin.setting-prodi.*'],
                                 'Dokumen Persyaratan' => ['icon' => 'document', 'route' => 'admin.dokumen.index', 'match' => 'admin.dokumen.*'],
+                                'Sumber Informasi' => ['icon' => 'info', 'route' => 'admin.sumber-informasi.index', 'match' => 'admin.sumber-informasi.*'],
                             ],
                         ],
                         [

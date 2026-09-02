@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             AgamaSeeder::class,
             JenisKelaminSeeder::class,
             PekerjaanSeeder::class,
+            SumberInformasiSeeder::class,
         ]);
     }
 }

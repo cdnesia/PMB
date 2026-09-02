@@ -19,6 +19,8 @@ return [
     'full_name_placeholder' => 'Your name',
     'phone' => 'WhatsApp / Phone Number',
     'phone_hint' => 'Use an active number to receive selection updates.',
+    'sumber_informasi' => 'How did you hear about UM Jambi?',
+    'sumber_informasi_placeholder' => 'Select one',
     'referral_code' => 'Referral Code',
     'referral_searching' => 'Searching...',
     'referral_min_chars' => 'Type at least 2 characters',

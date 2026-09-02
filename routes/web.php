@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\ProdiController;
 use App\Http\Controllers\Admin\PromoController;
 use App\Http\Controllers\Admin\ReferrerController as AdminReferrerController;
 use App\Http\Controllers\Admin\SettingProdiController;
+use App\Http\Controllers\Admin\SumberInformasiController;
 use App\Http\Controllers\Admin\TahunPenerimaanController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\LocaleController;
@@ -81,6 +82,7 @@ Route::middleware(['auth', 'role:super-admin|admin-pmb'])->prefix('admin')->name
     Route::resource('dokumen', DokumenPersyaratanController::class)->except('show')->parameters(['dokumen' => 'dokumen']);
     Route::resource('gelombang', GelombangController::class)->except('show');
     Route::resource('promo', PromoController::class)->except('show');
+    Route::resource('sumber-informasi', SumberInformasiController::class)->except('show')->parameters(['sumber-informasi' => 'sumberInformasi']);
 
     Route::get('pendaftar', [PendaftarController::class, 'index'])->name('pendaftar.index');
     Route::get('pendaftar/{pendaftaran}', [PendaftarController::class, 'show'])->name('pendaftar.show');

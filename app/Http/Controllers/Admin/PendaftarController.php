@@ -57,7 +57,7 @@ class PendaftarController extends Controller
     public function show(Pendaftaran $pendaftaran): View
     {
         $pendaftaran->load([
-            'user',
+            'user.sumberInformasi',
             'tahun',
             'jalur',
             'gelombang',

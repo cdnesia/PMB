@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'email', 'phone', 'password', 'referrer_id'])]
+#[Fillable(['name', 'email', 'phone', 'password', 'referrer_id', 'sumber_informasi_id'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -45,6 +45,11 @@ class User extends Authenticatable
     public function referrerProfile(): HasOne
     {
         return $this->hasOne(Referrer::class, 'user_id');
+    }
+
+    public function sumberInformasi(): BelongsTo
+    {
+        return $this->belongsTo(SumberInformasi::class, 'sumber_informasi_id');
     }
 
     public function pendaftaran(): HasMany

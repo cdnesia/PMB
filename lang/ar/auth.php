@@ -19,6 +19,8 @@ return [
     'full_name_placeholder' => 'اسمك',
     'phone' => 'رقم واتساب / الهاتف',
     'phone_hint' => 'استخدم رقمًا نشطًا لتلقي تحديثات عملية الاختيار.',
+    'sumber_informasi' => 'من أين عرفت عن جامعة UM Jambi؟',
+    'sumber_informasi_placeholder' => 'اختر واحدًا',
     'referral_code' => 'رمز الإحالة',
     'referral_searching' => 'جارٍ البحث...',
     'referral_min_chars' => 'اكتب حرفين على الأقل',

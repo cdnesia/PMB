@@ -19,6 +19,8 @@ return [
     'full_name_placeholder' => 'Nama Anda',
     'phone' => 'Nomor WA / Telepon',
     'phone_hint' => 'Gunakan nomor aktif untuk menerima informasi seleksi.',
+    'sumber_informasi' => 'Dari mana Anda tahu tentang UM Jambi?',
+    'sumber_informasi_placeholder' => 'Pilih salah satu',
     'referral_code' => 'Kode Referral',
     'referral_searching' => 'Mencari...',
     'referral_min_chars' => 'Ketik minimal 2 karakter',

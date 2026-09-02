@@ -3,6 +3,7 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\Referrer;
+use App\Models\SumberInformasi;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -21,6 +22,7 @@ class RegistrationTest extends TestCase
     public function test_new_users_can_register(): void
     {
         $this->seed(\Database\Seeders\RolePermissionSeeder::class);
+        $sumber = SumberInformasi::create(['kode' => 'TEMAN', 'nama' => 'Teman']);
 
         $response = $this->post('/register', [
             'name' => 'Test User',
@@ -28,6 +30,7 @@ class RegistrationTest extends TestCase
             'phone' => '081234567890',
             'password' => 'password',
             'password_confirmation' => 'password',
+            'sumber_informasi_id' => $sumber->id,
         ]);
 
         $this->assertAuthenticated();
@@ -38,6 +41,7 @@ class RegistrationTest extends TestCase
     {
         $this->seed(\Database\Seeders\RolePermissionSeeder::class);
         $referrer = Referrer::where('kode', 'REF-MITRA')->firstOrFail();
+        $sumber = SumberInformasi::create(['kode' => 'TEMAN', 'nama' => 'Teman']);
 
         $response = $this->post('/register', [
             'name' => 'Referred User',
@@ -46,6 +50,7 @@ class RegistrationTest extends TestCase
             'password' => 'password',
             'password_confirmation' => 'password',
             'kode_referral' => 'ref-mitra',
+            'sumber_informasi_id' => $sumber->id,
         ]);
 
         $this->assertAuthenticated();
@@ -58,6 +63,7 @@ class RegistrationTest extends TestCase
     public function test_registering_with_an_invalid_referral_code_fails_validation(): void
     {
         $this->seed(\Database\Seeders\RolePermissionSeeder::class);
+        $sumber = SumberInformasi::create(['kode' => 'TEMAN', 'nama' => 'Teman']);
 
         $response = $this->post('/register', [
             'name' => 'Test User',
@@ -66,6 +72,7 @@ class RegistrationTest extends TestCase
             'password' => 'password',
             'password_confirmation' => 'password',
             'kode_referral' => 'TIDAK-ADA',
+            'sumber_informasi_id' => $sumber->id,
         ]);
 
         $response->assertSessionHasErrors('kode_referral');
@@ -77,6 +84,7 @@ class RegistrationTest extends TestCase
     {
         $this->seed(\Database\Seeders\RolePermissionSeeder::class);
         Referrer::factory()->inactive()->create(['kode' => 'REF-NONAKTIF']);
+        $sumber = SumberInformasi::create(['kode' => 'TEMAN', 'nama' => 'Teman']);
 
         $response = $this->post('/register', [
             'name' => 'Test User',
@@ -85,6 +93,7 @@ class RegistrationTest extends TestCase
             'password' => 'password',
             'password_confirmation' => 'password',
             'kode_referral' => 'REF-NONAKTIF',
+            'sumber_informasi_id' => $sumber->id,
         ]);
 
         $response->assertSessionHasErrors('kode_referral');
@@ -94,6 +103,7 @@ class RegistrationTest extends TestCase
     public function test_registering_without_a_referral_code_leaves_referrer_null(): void
     {
         $this->seed(\Database\Seeders\RolePermissionSeeder::class);
+        $sumber = SumberInformasi::create(['kode' => 'TEMAN', 'nama' => 'Teman']);
 
         $this->post('/register', [
             'name' => 'No Referral User',
@@ -101,6 +111,7 @@ class RegistrationTest extends TestCase
             'phone' => '081234567894',
             'password' => 'password',
             'password_confirmation' => 'password',
+            'sumber_informasi_id' => $sumber->id,
         ]);
 
         $user = User::where('email', 'noreferral@example.com')->firstOrFail();
