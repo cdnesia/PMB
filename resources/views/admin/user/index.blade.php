@@ -71,7 +71,7 @@
                                     </a>
                                     <form method="POST" action="{{ route('admin.user.destroy', $u) }}">
                                         @csrf @method('DELETE')
-                                        <button type="button" x-data x-on:click="$dispatch('confirm-delete', { form: $el.closest('form'), message: 'Hapus user \'{{ $u->name }}\'? Tindakan ini tidak bisa dibatalkan.' })" class="rounded-md p-1.5 text-gray-400 transition hover:bg-red-50 hover:text-red-600" title="Hapus">
+                                        <button type="button" x-data x-on:click="$dispatch('confirm-delete', { form: $el.closest('form'), message: 'Hapus user \'{{ $u->name }}\' beserta seluruh data pendaftaran, riwayat pembayaran, hasil CBT, dan file dokumen miliknya? Tindakan ini tidak bisa dibatalkan.' })" class="rounded-md p-1.5 text-gray-400 transition hover:bg-red-50 hover:text-red-600" title="Hapus">
                                             <x-icon name="trash" class="h-4 w-4" />
                                         </button>
                                     </form>

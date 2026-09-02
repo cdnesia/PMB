@@ -2,13 +2,19 @@
 
 namespace Tests\Feature\Admin;
 
+use App\Models\DokumenPendaftar;
 use App\Models\Jalur;
+use App\Models\KelasPerkuliahan;
+use App\Models\Kuota;
 use App\Models\Pendaftaran;
+use App\Models\PendaftaranProdi;
+use App\Models\Prodi;
 use App\Models\Referrer;
 use App\Models\TahunPenerimaan;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class UserManagementTest extends TestCase
@@ -146,26 +152,65 @@ class UserManagementTest extends TestCase
         $this->assertNotNull($admin->fresh());
     }
 
-    public function test_cannot_delete_a_user_who_has_pendaftaran(): void
+    public function test_deleting_a_user_cleanly_wipes_pendaftaran_documents_files_and_kuota(): void
     {
+        Storage::fake('public');
+
         $admin = User::where('email', 'admin@pmb.test')->firstOrFail();
         $mahasiswa = User::factory()->create();
         $mahasiswa->assignRole('mahasiswa');
 
         $tahun = TahunPenerimaan::create(['kode' => '2026/2027', 'nama' => 'Tahun 2026/2027']);
         $jalur = Jalur::create(['kode' => 'REGULER', 'nama' => 'Jalur Reguler']);
-        Pendaftaran::forceCreate([
+        $prodi = Prodi::create(['kode' => 'TI', 'nama' => 'Teknik Informatika']);
+        $kelas = KelasPerkuliahan::create(['kode' => 'PAGI', 'nama' => 'Kelas Pagi']);
+
+        $kuota = Kuota::create([
+            'tahun_id' => $tahun->id,
+            'jalur_id' => $jalur->id,
+            'prodi_id' => $prodi->id,
+            'kelas_id' => $kelas->id,
+            'jumlah' => 5,
+            'terpakai' => 1,
+            'is_active' => true,
+        ]);
+
+        $pendaftaran = Pendaftaran::forceCreate([
             'no_urut' => 1,
             'user_id' => $mahasiswa->id,
             'tahun_id' => $tahun->id,
             'jalur_id' => $jalur->id,
         ]);
 
+        PendaftaranProdi::create([
+            'pendaftaran_id' => $pendaftaran->id,
+            'urutan' => 1,
+            'prodi_id' => $prodi->id,
+            'kelas_id' => $kelas->id,
+        ]);
+
+        $filePath = Storage::disk('public')->put('dokumen', 'isi-file-dummy');
+
+        DokumenPendaftar::create([
+            'pendaftaran_id' => $pendaftaran->id,
+            'nama' => 'Scan Ijazah Asli',
+            'file_path' => $filePath,
+            'file_name' => 'ijazah.pdf',
+            'file_size' => 1024,
+            'status' => 'menunggu',
+        ]);
+
         $response = $this->actingAs($admin)->delete(route('admin.user.destroy', $mahasiswa));
 
-        $response->assertRedirect();
-        $response->assertSessionHas('error');
-        $this->assertNotNull($mahasiswa->fresh());
+        $response->assertRedirect(route('admin.user.index'));
+        $response->assertSessionHas('success');
+
+        $this->assertNull($mahasiswa->fresh());
+        $this->assertDatabaseMissing('pendaftaran', ['id' => $pendaftaran->id]);
+        $this->assertDatabaseMissing('pendaftaran_prodi', ['pendaftaran_id' => $pendaftaran->id]);
+        $this->assertDatabaseMissing('dokumen_pendaftar', ['pendaftaran_id' => $pendaftaran->id]);
+        Storage::disk('public')->assertMissing($filePath);
+        $this->assertSame(0, $kuota->fresh()->terpakai);
     }
 
     public function test_super_admin_can_delete_a_user_without_pendaftaran(): void

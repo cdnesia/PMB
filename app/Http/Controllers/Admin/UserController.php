@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Pendaftaran;
 use App\Models\Referrer;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -99,13 +98,9 @@ class UserController extends Controller
             return back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
         }
 
-        if (Pendaftaran::where('user_id', $user->id)->exists()) {
-            return back()->with('error', 'User ini memiliki riwayat pendaftaran dan tidak dapat dihapus.');
-        }
+        $user->hapusBersih();
 
-        $user->delete();
-
-        return redirect()->route('admin.user.index')->with('success', 'User berhasil dihapus.');
+        return redirect()->route('admin.user.index')->with('success', 'User beserta seluruh data pendaftaran, riwayat, dan file terkait berhasil dihapus.');
     }
 
     private function syncReferrerProfile(User $user, array $data): void
