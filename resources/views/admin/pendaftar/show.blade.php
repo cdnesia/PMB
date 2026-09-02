@@ -297,7 +297,7 @@
             {{-- Kolom kanan: aksi proses --}}
             <div class="space-y-6">
                 {{-- Daftar ulang (SPP) --}}
-                @if ($pendaftaran->isLolos() && $pendaftaran->daftarUlang && $pendaftaran->status !== 'mahasiswa_baru')
+                @if ($pendaftaran->isLolos() && $pendaftaran->daftarUlang)
                     <section class="rounded-xl border border-emerald-200 bg-emerald-50/50 p-5">
                         <h3 class="text-sm font-semibold text-emerald-900">Verifikasi SPP / Uang Kuliah (Daftar Ulang)</h3>
                         <p class="mt-1 text-xs text-gray-600">Pendaftar telah mengirim bukti pembayaran uang kuliah — terpisah dari biaya pendaftaran di bawah.</p>
@@ -324,20 +324,22 @@
                             </a>
                         @endif
 
-                        <div class="mt-4 flex gap-2">
-                            <form method="POST" action="{{ route('admin.pendaftar.daftar-ulang', $pendaftaran) }}" class="flex-1">
-                                @csrf
-                                @method('PATCH')
-                                <input type="hidden" name="status" value="lunas">
-                                <x-ui-button variant="success" class="w-full" icon="check">Konfirmasi Lunas</x-ui-button>
-                            </form>
-                            <form method="POST" action="{{ route('admin.pendaftar.daftar-ulang', $pendaftaran) }}" class="flex-1">
-                                @csrf
-                                @method('PATCH')
-                                <input type="hidden" name="status" value="ditolak">
-                                <x-ui-button variant="danger" class="w-full">Tolak</x-ui-button>
-                            </form>
-                        </div>
+                        @if ($pendaftaran->daftarUlang->status === 'menunggu_verifikasi')
+                            <div class="mt-4 flex gap-2">
+                                <form method="POST" action="{{ route('admin.pendaftar.daftar-ulang', $pendaftaran) }}" class="flex-1">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="status" value="lunas">
+                                    <x-ui-button variant="success" class="w-full" icon="check">Konfirmasi Lunas</x-ui-button>
+                                </form>
+                                <form method="POST" action="{{ route('admin.pendaftar.daftar-ulang', $pendaftaran) }}" class="flex-1">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="status" value="ditolak">
+                                    <x-ui-button variant="danger" class="w-full">Tolak</x-ui-button>
+                                </form>
+                            </div>
+                        @endif
                     </section>
                 @endif
 
