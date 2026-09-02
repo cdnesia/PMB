@@ -13,7 +13,7 @@
     ];
 @endphp
 
-<div x-data="{ open: false }" class="rounded-xl border border-gray-200 bg-white">
+<div x-data="{ open: false }" class="mb-6 rounded-xl border border-gray-200 bg-white">
     <button type="button" @click="open = !open"
             class="flex w-full items-center justify-between px-4 py-3 text-left">
         <span class="flex items-center gap-2 text-sm font-medium text-gray-700">
