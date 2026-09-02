@@ -137,6 +137,23 @@ class Pendaftaran extends Model
     }
 
     /**
+     * Tandai seluruh dokumen & pendaftaran ini terverifikasi, hanya jika semua
+     * dokumen persyaratan sudah diunggah. Tidak mengubah apa pun jika masih
+     * ada dokumen yang belum diunggah.
+     */
+    public function verifikasiSemuaBerkas(): bool
+    {
+        if ($this->dokumen()->whereNull('file_path')->exists()) {
+            return false;
+        }
+
+        $this->dokumen()->update(['status' => 'terverifikasi']);
+        $this->update(['status' => 'terverifikasi']);
+
+        return true;
+    }
+
+    /**
      * Total potongan promo untuk biaya pendaftaran (0 jika tidak pakai promo).
      */
     public function potonganPendaftaran(): float

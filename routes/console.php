@@ -9,3 +9,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('cbt:tutup-sesi-kedaluwarsa')->everyMinute();
+Schedule::command('pendaftaran:verifikasi-berkas-otomatis')->everyMinute();

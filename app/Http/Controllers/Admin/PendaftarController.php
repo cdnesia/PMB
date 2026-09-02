@@ -144,15 +144,9 @@ class PendaftarController extends Controller
 
     public function verifikasiBerkas(Pendaftaran $pendaftaran): RedirectResponse
     {
-        // Semua dokumen wajib sudah diunggah baru boleh ditandai lengkap
-        $belumUpload = $pendaftaran->dokumen()->whereNull('file_path')->exists();
-
-        if ($belumUpload) {
+        if (! $pendaftaran->verifikasiSemuaBerkas()) {
             return back()->withErrors(['berkas' => 'Masih ada dokumen yang belum diunggah.']);
         }
-
-        $pendaftaran->dokumen()->update(['status' => 'terverifikasi']);
-        $pendaftaran->update(['status' => 'terverifikasi']);
 
         return back()->with('success', 'Semua berkas ditandai lengkap & terverifikasi.');
     }
