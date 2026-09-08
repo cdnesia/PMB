@@ -421,7 +421,11 @@ class PendaftaranController extends Controller
                 ]);
 
                 foreach ($pilihan as $p) {
-                    $this->claimKuota($tahun->id, $jalurId, $p);
+                    // Hanya pilihan pertama yang mengurangi kuota — pilihan kedua
+                    // adalah cadangan dan baru dipertimbangkan saat seleksi.
+                    if ($p['urutan'] === 1) {
+                        $this->claimKuota($tahun->id, $jalurId, $p);
+                    }
 
                     PendaftaranProdi::create([
                         'pendaftaran_id' => $pendaftaran->id,

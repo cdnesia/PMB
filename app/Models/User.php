@@ -93,8 +93,11 @@ class User extends Authenticatable
                 $filePaths[] = $p->pembayaran->bukti_bayar;
             }
 
-            foreach ($p->prodiPilihan as $pilihan) {
-                $this->kembalikanKuota($p, $pilihan);
+            // Kuota hanya diklaim untuk pilihan pertama saat mendaftar (lihat
+            // PendaftaranController::store), jadi hanya itu yang dikembalikan.
+            $pilihanPertama = $p->prodiPilihan->firstWhere('urutan', 1);
+            if ($pilihanPertama) {
+                $this->kembalikanKuota($p, $pilihanPertama);
             }
         }
 
