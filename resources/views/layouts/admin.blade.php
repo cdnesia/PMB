@@ -79,7 +79,8 @@
                         [
                             'label' => 'Laporan',
                             'items' => [
-                                'Rekap Pendaftaran' => ['icon' => 'chart', 'route' => 'admin.laporan.index', 'match' => 'admin.laporan.*'],
+                                'Rekap Pendaftaran' => ['icon' => 'chart', 'route' => 'admin.laporan.index', 'match' => 'admin.laporan.index'],
+                                'Rekap Lolos Seleksi' => ['icon' => 'check', 'route' => 'admin.laporan.lolos', 'match' => 'admin.laporan.lolos'],
                                 'Rekap Referrer' => ['icon' => 'chart', 'route' => 'admin.referrer.index', 'match' => 'admin.referrer.*'],
                             ],
                         ],

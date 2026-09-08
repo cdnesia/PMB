@@ -80,6 +80,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'role:super-admin|admin-pmb'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('laporan', [LaporanController::class, 'index'])->name('laporan.index');
+    Route::get('laporan/lolos', [LaporanController::class, 'lolos'])->name('laporan.lolos');
 
     Route::get('pengaturan', [PengaturanController::class, 'index'])->name('pengaturan.index');
     Route::put('pengaturan', [PengaturanController::class, 'update'])->name('pengaturan.update');

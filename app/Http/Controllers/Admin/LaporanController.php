@@ -7,6 +7,7 @@ use App\Models\Jalur;
 use App\Models\Pendaftaran;
 use App\Models\PendaftaranProdi;
 use App\Models\Prodi;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
@@ -59,5 +60,32 @@ class LaporanController extends Controller
         ])->values();
 
         return view('admin.laporan.index', compact('ringkasan', 'perJalur', 'perProdi', 'statusRekap'));
+    }
+
+    /**
+     * Daftar mahasiswa yang lolos, beserta prodi mana yang meluluskannya.
+     * Diambil dari status per pilihan prodi (bukan status pendaftaran secara
+     * umum), karena status "lolos" ditentukan per pilihan (lihat
+     * PendaftarController::update, field prodi_status).
+     */
+    public function lolos(Request $request): View
+    {
+        $lolos = PendaftaranProdi::with(['pendaftaran.user', 'pendaftaran.jalur', 'prodi', 'kelas'])
+            ->where('status', 'lolos')
+            ->when($request->filled('prodi_id'), fn ($q) => $q->where('prodi_id', $request->prodi_id))
+            ->when($request->filled('q'), function ($q) use ($request) {
+                $term = $request->q;
+                $q->whereHas('pendaftaran', function ($pq) use ($term) {
+                    $pq->where('nomor_pendaftaran', 'like', "%{$term}%")
+                        ->orWhereHas('user', fn ($u) => $u->where('name', 'like', "%{$term}%")->orWhere('email', 'like', "%{$term}%"));
+                });
+            })
+            ->latest('updated_at')
+            ->paginate(20)
+            ->withQueryString();
+
+        $prodiList = Prodi::orderBy('jenjang')->orderBy('nama')->get();
+
+        return view('admin.laporan.lolos', compact('lolos', 'prodiList'));
     }
 }
