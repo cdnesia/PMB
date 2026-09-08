@@ -4,27 +4,31 @@ namespace App\Http\Controllers\Referrer;
 
 use App\Http\Controllers\Controller;
 use App\Models\TahunPenerimaan;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
-class DashboardController extends Controller
+class LaporanController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         $referrer = Auth::user()->referrerProfile()->firstOrFail();
 
-        $tahunAktif = TahunPenerimaan::where('status', 'aktif')->first();
+        $tahunId = $request->input('tahun_id');
 
         $pendaftar = $referrer->pendaftaran()
             ->with('user')
-            ->when($tahunAktif, fn ($q) => $q->where('tahun_id', $tahunAktif->id))
+            ->when($tahunId, fn ($q) => $q->where('tahun_id', $tahunId))
             ->latest()
             ->get();
 
-        return view('referrer.dashboard', [
+        $tahunList = TahunPenerimaan::orderByDesc('kode')->get();
+
+        return view('referrer.laporan', [
             'referrer' => $referrer,
             'pendaftar' => $pendaftar,
-            'tahunAktif' => $tahunAktif,
+            'tahunList' => $tahunList,
+            'tahunId' => $tahunId,
         ]);
     }
 }

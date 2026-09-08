@@ -94,6 +94,30 @@
                     </div>
 
                     <div>
+                        <x-ui-label for="nama_bank">Nama Bank</x-ui-label>
+                        <div class="mt-2">
+                            <x-ui-input name="nama_bank" id="nama_bank" :value="old('nama_bank', $user->referrerProfile?->nama_bank)" placeholder="Contoh: BCA, BRI, Mandiri" />
+                        </div>
+                        @error('nama_bank')<p class="mt-1.5 text-sm text-red-600">{{ $message }}</p>@enderror
+                    </div>
+
+                    <div>
+                        <x-ui-label for="nomor_rekening">Nomor Rekening</x-ui-label>
+                        <div class="mt-2">
+                            <x-ui-input name="nomor_rekening" id="nomor_rekening" :value="old('nomor_rekening', $user->referrerProfile?->nomor_rekening)" placeholder="Nomor rekening bank" />
+                        </div>
+                        @error('nomor_rekening')<p class="mt-1.5 text-sm text-red-600">{{ $message }}</p>@enderror
+                    </div>
+
+                    <div>
+                        <x-ui-label for="nama_pemilik_rekening">Nama Pemilik Rekening</x-ui-label>
+                        <div class="mt-2">
+                            <x-ui-input name="nama_pemilik_rekening" id="nama_pemilik_rekening" :value="old('nama_pemilik_rekening', $user->referrerProfile?->nama_pemilik_rekening)" placeholder="Sesuai buku tabungan" />
+                        </div>
+                        @error('nama_pemilik_rekening')<p class="mt-1.5 text-sm text-red-600">{{ $message }}</p>@enderror
+                    </div>
+
+                    <div>
                         <x-ui-toggle name="referrer_is_active" id="referrer_is_active"
                                      :checked="old('referrer_is_active', $user->exists ? ($user->referrerProfile->is_active ?? true) : true)"
                                      label="Aktif" description="Kode referral dapat digunakan mahasiswa." />

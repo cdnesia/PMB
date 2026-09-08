@@ -20,6 +20,9 @@ class ReferrerFactory extends Factory
             'kode' => strtoupper('REF-'.fake()->unique()->bothify('??##??')),
             'jenis' => 'mitra',
             'nama_instansi' => fake()->company(),
+            'nama_bank' => fake()->randomElement(['BCA', 'BRI', 'Mandiri', 'BNI']),
+            'nomor_rekening' => fake()->numerify('##########'),
+            'nama_pemilik_rekening' => fake()->name(),
             'is_active' => true,
         ];
     }

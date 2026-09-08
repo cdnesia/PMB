@@ -26,6 +26,8 @@ use App\Http\Controllers\Mahasiswa\PendaftaranController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\Referrer\DashboardController as ReferrerDashboardController;
+use App\Http\Controllers\Referrer\LaporanController as ReferrerLaporanController;
+use App\Http\Controllers\Referrer\ProfileController as ReferrerProfileController;
 use App\Http\Controllers\WilayahController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -120,6 +122,9 @@ Route::middleware(['auth', 'role:super-admin|admin-pmb'])->prefix('admin')->name
 // ===== Area Referrer (Karyawan & Mitra) =====
 Route::middleware(['auth', 'role:karyawan|mitra'])->prefix('referrer')->name('referrer.')->group(function () {
     Route::get('/dashboard', [ReferrerDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/laporan', [ReferrerLaporanController::class, 'index'])->name('laporan.index');
+    Route::get('/profil', [ReferrerProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profil', [ReferrerProfileController::class, 'update'])->name('profile.update');
 });
 
 // ===== Area Mahasiswa =====

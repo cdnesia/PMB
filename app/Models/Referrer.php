@@ -19,6 +19,9 @@ class Referrer extends Model
         'kode',
         'jenis',
         'nama_instansi',
+        'nama_bank',
+        'nomor_rekening',
+        'nama_pemilik_rekening',
         'is_active',
     ];
 
@@ -27,6 +30,11 @@ class Referrer extends Model
         return [
             'is_active' => 'boolean',
         ];
+    }
+
+    public function setKodeAttribute(string $value): void
+    {
+        $this->attributes['kode'] = strtoupper($value);
     }
 
     public function user(): BelongsTo

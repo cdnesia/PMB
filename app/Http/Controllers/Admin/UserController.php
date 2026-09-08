@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Spatie\Permission\Models\Role;
 
@@ -115,6 +116,9 @@ class UserController extends Controller
                 'kode' => $data['kode'],
                 'jenis' => $data['role'],
                 'nama_instansi' => $data['nama_instansi'] ?? null,
+                'nama_bank' => $data['nama_bank'] ?? null,
+                'nomor_rekening' => $data['nomor_rekening'] ?? null,
+                'nama_pemilik_rekening' => $data['nama_pemilik_rekening'] ?? null,
                 'is_active' => $data['referrer_is_active'] ?? true,
             ]
         );
@@ -124,6 +128,10 @@ class UserController extends Controller
     {
         $referrerId = $user?->referrerProfile?->id;
 
+        if ($request->filled('kode')) {
+            $request->merge(['kode' => Str::upper($request->input('kode'))]);
+        }
+
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email'.($user ? ','.$user->id : ''),
@@ -132,6 +140,9 @@ class UserController extends Controller
             'role' => ['required', 'string', 'exists:roles,name'],
             'kode' => 'required_if:role,karyawan,mitra|nullable|string|max:30|unique:referrer,kode'.($referrerId ? ','.$referrerId : ''),
             'nama_instansi' => 'nullable|string|max:255',
+            'nama_bank' => 'nullable|string|max:255',
+            'nomor_rekening' => 'nullable|string|max:50',
+            'nama_pemilik_rekening' => 'nullable|string|max:255',
         ]);
 
         $data['referrer_is_active'] = $request->boolean('referrer_is_active', true);

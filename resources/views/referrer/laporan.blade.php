@@ -1,32 +1,44 @@
 @extends('layouts.referrer')
 
-@section('title', 'Dashboard Referral')
+@section('title', 'Laporan Referral')
 
 @section('content')
-    <x-ui-page-header title="Dashboard Referral" :description="'Pantau mahasiswa yang mendaftar menggunakan kode referral Anda' . ($tahunAktif ? ' pada tahun penerimaan ' . $tahunAktif->kode . ' (aktif).' : '.')">
-        <x-slot:action>
-            <x-ui-button variant="secondary" :href="route('referrer.laporan.index')" icon="chart">Laporan</x-ui-button>
-            <x-ui-button variant="secondary" :href="route('referrer.profile.edit')" icon="user">Edit Profil & Rekening</x-ui-button>
-        </x-slot:action>
-    </x-ui-page-header>
+    <x-ui-page-header title="Laporan Referral" description="Lihat riwayat mahasiswa yang mendaftar dengan kode referral Anda per tahun penerimaan." />
 
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <x-ui-card>
-            <div class="text-xs font-medium uppercase tracking-wide text-gray-500">Kode Referral</div>
-            <div class="mt-1 text-2xl font-bold tracking-wide text-indigo-600">{{ $referrer->kode }}</div>
-            <div class="mt-1 text-xs text-gray-500 capitalize">{{ $referrer->jenis }}@if($referrer->nama_instansi) &middot; {{ $referrer->nama_instansi }} @endif</div>
-        </x-ui-card>
+    <x-ui-card>
+        <form method="GET" action="{{ route('referrer.laporan.index') }}" class="flex flex-wrap items-end gap-4">
+            <div class="w-full sm:w-64">
+                <x-ui-label for="tahun_id">Tahun Penerimaan</x-ui-label>
+                <div class="mt-2">
+                    <x-ui-select name="tahun_id" id="tahun_id">
+                        <option value="">-- Semua Tahun --</option>
+                        @foreach ($tahunList as $t)
+                            <option value="{{ $t->id }}" @selected($tahunId == $t->id)>
+                                {{ $t->kode }}@if ($t->status === 'aktif') (Aktif) @endif
+                            </option>
+                        @endforeach
+                    </x-ui-select>
+                </div>
+            </div>
+            <x-ui-button variant="primary" type="submit">Filter</x-ui-button>
+            <x-ui-button variant="secondary" type="button" :href="route('referrer.laporan.index')">Reset</x-ui-button>
+        </form>
+    </x-ui-card>
 
+    <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <x-ui-card>
             <div class="text-xs font-medium uppercase tracking-wide text-gray-500">Total Mahasiswa</div>
             <div class="mt-1 text-2xl font-bold text-gray-900">{{ $pendaftar->count() }}</div>
-            <div class="mt-1 text-xs text-gray-500">Mendaftar dengan kode ini</div>
         </x-ui-card>
 
         <x-ui-card>
             <div class="text-xs font-medium uppercase tracking-wide text-gray-500">Sudah Lunas</div>
             <div class="mt-1 text-2xl font-bold text-emerald-600">{{ $pendaftar->where('status_pembayaran', 'lunas')->count() }}</div>
-            <div class="mt-1 text-xs text-gray-500">dari {{ $pendaftar->count() }} pendaftar</div>
+        </x-ui-card>
+
+        <x-ui-card>
+            <div class="text-xs font-medium uppercase tracking-wide text-gray-500">Lolos Seleksi</div>
+            <div class="mt-1 text-2xl font-bold text-indigo-600">{{ $pendaftar->where('status', 'lolos')->count() }}</div>
         </x-ui-card>
     </div>
 

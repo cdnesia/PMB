@@ -56,6 +56,26 @@
                             <span class="ml-auto h-1.5 w-1.5 rounded-full bg-white/80"></span>
                         @endif
                     </a>
+
+                    <a href="{{ route('referrer.laporan.index') }}"
+                       class="group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition
+                              {{ request()->routeIs('referrer.laporan.*') ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                        <x-icon name="chart" class="h-5 w-5 shrink-0" />
+                        Laporan
+                        @if (request()->routeIs('referrer.laporan.*'))
+                            <span class="ml-auto h-1.5 w-1.5 rounded-full bg-white/80"></span>
+                        @endif
+                    </a>
+
+                    <a href="{{ route('referrer.profile.edit') }}"
+                       class="group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition
+                              {{ request()->routeIs('referrer.profile.*') ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                        <x-icon name="user" class="h-5 w-5 shrink-0" />
+                        Profil & Rekening
+                        @if (request()->routeIs('referrer.profile.*'))
+                            <span class="ml-auto h-1.5 w-1.5 rounded-full bg-white/80"></span>
+                        @endif
+                    </a>
                 </nav>
             </aside>
 
@@ -95,8 +115,8 @@
                                     <div class="text-sm font-medium text-gray-900">{{ Auth::user()->name }}</div>
                                     <div class="truncate text-xs text-gray-500">{{ Auth::user()->email }}</div>
                                 </div>
-                                <a href="{{ route('profile.edit') }}" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                                    <x-icon name="user" class="h-4 w-4 text-gray-400" /> Profil
+                                <a href="{{ route('referrer.profile.edit') }}" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                    <x-icon name="user" class="h-4 w-4 text-gray-400" /> Profil & Rekening
                                 </a>
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf

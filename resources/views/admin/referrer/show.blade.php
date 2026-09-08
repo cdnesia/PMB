@@ -27,6 +27,24 @@
         @endforeach
     </div>
 
+    <x-ui-card class="mt-6">
+        <h2 class="text-base font-semibold text-gray-900">Informasi Rekening</h2>
+        <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div>
+                <div class="text-xs text-gray-500">Nama Bank</div>
+                <div class="mt-1 font-medium text-gray-900">{{ $referrer->nama_bank ?? '—' }}</div>
+            </div>
+            <div>
+                <div class="text-xs text-gray-500">Nomor Rekening</div>
+                <div class="mt-1 font-medium text-gray-900">{{ $referrer->nomor_rekening ?? '—' }}</div>
+            </div>
+            <div>
+                <div class="text-xs text-gray-500">Nama Pemilik Rekening</div>
+                <div class="mt-1 font-medium text-gray-900">{{ $referrer->nama_pemilik_rekening ?? '—' }}</div>
+            </div>
+        </div>
+    </x-ui-card>
+
     <x-ui-card :padding="''" class="mt-6">
         <div class="border-b border-gray-100 px-6 py-4">
             <h2 class="text-base font-semibold text-gray-900">Mahasiswa yang Direferensikan</h2>

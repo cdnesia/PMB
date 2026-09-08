@@ -101,4 +101,43 @@ class DashboardTest extends TestCase
 
         $response->assertRedirect(route('referrer.dashboard'));
     }
+
+    public function test_dashboard_only_shows_active_year(): void
+    {
+        $referrerUser = User::factory()->create();
+        $referrerUser->assignRole('mitra');
+        $referrer = Referrer::factory()->mitra()->create(['user_id' => $referrerUser->id]);
+
+        $jalur = Jalur::create(['kode' => 'REGULER', 'nama' => 'Jalur Reguler']);
+        $tahunAktif = TahunPenerimaan::create(['kode' => '2026/2027', 'nama' => 'Tahun 2026/2027', 'status' => 'aktif']);
+        $tahunLama = TahunPenerimaan::create(['kode' => '2025/2026', 'nama' => 'Tahun 2025/2026', 'status' => 'nonaktif']);
+
+        Pendaftaran::forceCreate([
+            'no_urut' => 1,
+            'user_id' => User::factory()->create(['name' => 'Mahasiswa Aktif'])->id,
+            'tahun_id' => $tahunAktif->id,
+            'jalur_id' => $jalur->id,
+            'referrer_id' => $referrer->id,
+            'nomor_pendaftaran' => 'PMB-AKTIF-00001',
+            'status' => 'lolos',
+            'status_pembayaran' => 'lunas',
+        ]);
+
+        Pendaftaran::forceCreate([
+            'no_urut' => 2,
+            'user_id' => User::factory()->create(['name' => 'Mahasiswa Lama'])->id,
+            'tahun_id' => $tahunLama->id,
+            'jalur_id' => $jalur->id,
+            'referrer_id' => $referrer->id,
+            'nomor_pendaftaran' => 'PMB-LAMA-00001',
+            'status' => 'lolos',
+            'status_pembayaran' => 'lunas',
+        ]);
+
+        $response = $this->actingAs($referrerUser)->get(route('referrer.dashboard'));
+
+        $response->assertOk();
+        $response->assertSee('Mahasiswa Aktif');
+        $response->assertDontSee('Mahasiswa Lama');
+    }
 }

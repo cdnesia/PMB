@@ -88,6 +88,25 @@ class UserManagementTest extends TestCase
         $this->assertTrue($user->referrerProfile->is_active);
     }
 
+    public function test_referrer_kode_is_always_stored_uppercase(): void
+    {
+        $admin = User::where('email', 'admin@pmb.test')->firstOrFail();
+
+        $response = $this->actingAs($admin)->post(route('admin.user.store'), [
+            'name' => 'Mitra Huruf Kecil',
+            'email' => 'mitra.hurufkecil@pmb.test',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+            'role' => 'mitra',
+            'kode' => 'ref-huruf-kecil',
+        ]);
+
+        $response->assertRedirect(route('admin.user.index'));
+
+        $user = User::where('email', 'mitra.hurufkecil@pmb.test')->firstOrFail();
+        $this->assertSame('REF-HURUF-KECIL', $user->referrerProfile->kode);
+    }
+
     public function test_creating_a_karyawan_user_without_kode_fails_validation(): void
     {
         $admin = User::where('email', 'admin@pmb.test')->firstOrFail();
