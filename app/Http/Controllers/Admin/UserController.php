@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Referrer;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -45,7 +46,7 @@ class UserController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): JsonResponse|RedirectResponse
     {
         $data = $this->validated($request);
 
@@ -60,7 +61,7 @@ class UserController extends Controller
         $user->assignRole($data['role']);
         $this->syncReferrerProfile($user, $data);
 
-        return redirect()->route('admin.user.index')->with('success', 'User berhasil ditambahkan.');
+        return $this->ajaxSuccess($request, 'User berhasil ditambahkan.', 'admin.user.index', status: 201);
     }
 
     public function edit(User $user): View
@@ -73,7 +74,7 @@ class UserController extends Controller
         ]);
     }
 
-    public function update(Request $request, User $user): RedirectResponse
+    public function update(Request $request, User $user): JsonResponse|RedirectResponse
     {
         $data = $this->validated($request, $user);
 
@@ -90,18 +91,22 @@ class UserController extends Controller
         $user->syncRoles([$data['role']]);
         $this->syncReferrerProfile($user, $data);
 
-        return redirect()->route('admin.user.index')->with('success', 'User berhasil diperbarui.');
+        return $this->ajaxSuccess($request, 'User berhasil diperbarui.', 'admin.user.index');
     }
 
-    public function destroy(User $user): RedirectResponse
+    public function destroy(Request $request, User $user): JsonResponse|RedirectResponse
     {
         if ($user->id === Auth::id()) {
+            if ($request->wantsJson()) {
+                return response()->json(['message' => 'Anda tidak dapat menghapus akun Anda sendiri.'], 422);
+            }
+
             return back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
         }
 
         $user->hapusBersih();
 
-        return redirect()->route('admin.user.index')->with('success', 'User beserta seluruh data pendaftaran, riwayat, dan file terkait berhasil dihapus.');
+        return $this->ajaxSuccess($request, 'User beserta seluruh data pendaftaran, riwayat, dan file terkait berhasil dihapus.', 'admin.user.index');
     }
 
     private function syncReferrerProfile(User $user, array $data): void

@@ -8,6 +8,7 @@ use App\Models\CbtSoal;
 use App\Models\Gelombang;
 use App\Models\Jalur;
 use App\Models\Prodi;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -26,8 +27,11 @@ class CbtJadwalController extends Controller
             ->withQueryString();
 
         $jalurList = Jalur::orderBy('urutan')->get();
+        $gelombangList = Gelombang::orderByDesc('tanggal_mulai')->get();
+        $prodiList = Prodi::where('is_active', true)->orderBy('nama')->get();
+        $kategoriList = $this->kategoriList();
 
-        return view('admin.cbt.jadwal.index', compact('jadwal', 'jalurList'));
+        return view('admin.cbt.jadwal.index', compact('jadwal', 'jalurList', 'gelombangList', 'prodiList', 'kategoriList'));
     }
 
     public function create(): View
@@ -41,7 +45,7 @@ class CbtJadwalController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): JsonResponse|RedirectResponse
     {
         [$data, $komposisi] = $this->validated($request);
 
@@ -50,7 +54,7 @@ class CbtJadwalController extends Controller
             $jadwal->komposisi()->createMany($komposisi);
         });
 
-        return redirect()->route('admin.cbt-jadwal.index')->with('success', 'Jadwal CBT berhasil ditambahkan.');
+        return $this->ajaxSuccess($request, 'Jadwal CBT berhasil ditambahkan.', 'admin.cbt-jadwal.index', status: 201);
     }
 
     public function edit(CbtJadwal $jadwal): View
@@ -66,7 +70,7 @@ class CbtJadwalController extends Controller
         ]);
     }
 
-    public function update(Request $request, CbtJadwal $jadwal): RedirectResponse
+    public function update(Request $request, CbtJadwal $jadwal): JsonResponse|RedirectResponse
     {
         [$data, $komposisi] = $this->validated($request);
 
@@ -76,14 +80,14 @@ class CbtJadwalController extends Controller
             $jadwal->komposisi()->createMany($komposisi);
         });
 
-        return redirect()->route('admin.cbt-jadwal.index')->with('success', 'Jadwal CBT berhasil diperbarui.');
+        return $this->ajaxSuccess($request, 'Jadwal CBT berhasil diperbarui.', 'admin.cbt-jadwal.index');
     }
 
-    public function destroy(CbtJadwal $jadwal): RedirectResponse
+    public function destroy(Request $request, CbtJadwal $jadwal): JsonResponse|RedirectResponse
     {
         $jadwal->delete();
 
-        return redirect()->route('admin.cbt-jadwal.index')->with('success', 'Jadwal CBT berhasil dihapus.');
+        return $this->ajaxSuccess($request, 'Jadwal CBT berhasil dihapus.', 'admin.cbt-jadwal.index');
     }
 
     /**

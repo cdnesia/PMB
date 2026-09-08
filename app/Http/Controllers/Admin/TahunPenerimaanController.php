@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\TahunPenerimaan;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -22,11 +23,11 @@ class TahunPenerimaanController extends Controller
         return view('admin.tahun.form', ['tahun' => new TahunPenerimaan()]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): JsonResponse|RedirectResponse
     {
         TahunPenerimaan::create($this->validated($request));
 
-        return redirect()->route('admin.tahun.index')->with('success', 'Tahun penerimaan berhasil ditambahkan.');
+        return $this->ajaxSuccess($request, 'Tahun penerimaan berhasil ditambahkan.', 'admin.tahun.index', status: 201);
     }
 
     public function edit(TahunPenerimaan $tahun): View
@@ -34,18 +35,18 @@ class TahunPenerimaanController extends Controller
         return view('admin.tahun.form', compact('tahun'));
     }
 
-    public function update(Request $request, TahunPenerimaan $tahun): RedirectResponse
+    public function update(Request $request, TahunPenerimaan $tahun): JsonResponse|RedirectResponse
     {
         $tahun->update($this->validated($request, $tahun->id));
 
-        return redirect()->route('admin.tahun.index')->with('success', 'Tahun penerimaan berhasil diperbarui.');
+        return $this->ajaxSuccess($request, 'Tahun penerimaan berhasil diperbarui.', 'admin.tahun.index');
     }
 
-    public function destroy(TahunPenerimaan $tahun): RedirectResponse
+    public function destroy(Request $request, TahunPenerimaan $tahun): JsonResponse|RedirectResponse
     {
         $tahun->delete();
 
-        return redirect()->route('admin.tahun.index')->with('success', 'Tahun penerimaan berhasil dihapus.');
+        return $this->ajaxSuccess($request, 'Tahun penerimaan berhasil dihapus.', 'admin.tahun.index');
     }
 
     private function validated(Request $request, ?string $id = null): array

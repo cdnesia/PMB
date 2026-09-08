@@ -7,6 +7,7 @@ use App\Models\Jalur;
 use App\Models\Promo;
 use App\Models\PromoKetentuan;
 use App\Models\ProdiKelasJalur;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -20,7 +21,10 @@ class PromoController extends Controller
             ->orderByDesc('created_at')
             ->paginate(20);
 
-        return view('admin.promo.index', compact('promo'));
+        $jalurList = Jalur::orderBy('urutan')->get();
+        $matriksMap = $this->matriksMap();
+
+        return view('admin.promo.index', compact('promo', 'jalurList', 'matriksMap'));
     }
     public function create(): View
     {
@@ -32,12 +36,12 @@ class PromoController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): JsonResponse|RedirectResponse
     {
         $promo = Promo::create($this->validated($request));
         $this->syncKetentuan($promo, $request);
 
-        return redirect()->route('admin.promo.index')->with('success', 'Promo berhasil ditambahkan.');
+        return $this->ajaxSuccess($request, 'Promo berhasil ditambahkan.', 'admin.promo.index', status: 201);
     }
 
     public function edit(Promo $promo): View
@@ -59,19 +63,19 @@ class PromoController extends Controller
         ]);
     }
 
-    public function update(Request $request, Promo $promo): RedirectResponse
+    public function update(Request $request, Promo $promo): JsonResponse|RedirectResponse
     {
         $promo->update($this->validated($request, $promo->id));
         $this->syncKetentuan($promo, $request);
 
-        return redirect()->route('admin.promo.index')->with('success', 'Promo berhasil diperbarui.');
+        return $this->ajaxSuccess($request, 'Promo berhasil diperbarui.', 'admin.promo.index');
     }
 
-    public function destroy(Promo $promo): RedirectResponse
+    public function destroy(Request $request, Promo $promo): JsonResponse|RedirectResponse
     {
         $promo->delete();
 
-        return redirect()->route('admin.promo.index')->with('success', 'Promo berhasil dihapus.');
+        return $this->ajaxSuccess($request, 'Promo berhasil dihapus.', 'admin.promo.index');
     }
 
     /**

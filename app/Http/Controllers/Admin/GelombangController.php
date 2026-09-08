@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Gelombang;
 use App\Models\Jalur;
 use App\Models\TahunPenerimaan;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -21,8 +22,9 @@ class GelombangController extends Controller
             ->withQueryString();
 
         $tahunList = TahunPenerimaan::orderBy('kode')->get();
+        $jalurList = Jalur::where('is_active', true)->orderBy('urutan')->get();
 
-        return view('admin.gelombang.index', compact('gelombang', 'tahunList'));
+        return view('admin.gelombang.index', compact('gelombang', 'tahunList', 'jalurList'));
     }
 
     public function create(): View
@@ -35,14 +37,14 @@ class GelombangController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): JsonResponse|RedirectResponse
     {
         $data = $this->validated($request);
 
         $gelombang = Gelombang::create($data);
         $gelombang->jalur()->sync($request->input('jalur', []));
 
-        return redirect()->route('admin.gelombang.index')->with('success', 'Gelombang berhasil ditambahkan.');
+        return $this->ajaxSuccess($request, 'Gelombang berhasil ditambahkan.', 'admin.gelombang.index', status: 201);
     }
 
     public function edit(Gelombang $gelombang): View
@@ -55,21 +57,21 @@ class GelombangController extends Controller
         ]);
     }
 
-    public function update(Request $request, Gelombang $gelombang): RedirectResponse
+    public function update(Request $request, Gelombang $gelombang): JsonResponse|RedirectResponse
     {
         $data = $this->validated($request, $gelombang->id);
 
         $gelombang->update($data);
         $gelombang->jalur()->sync($request->input('jalur', []));
 
-        return redirect()->route('admin.gelombang.index')->with('success', 'Gelombang berhasil diperbarui.');
+        return $this->ajaxSuccess($request, 'Gelombang berhasil diperbarui.', 'admin.gelombang.index');
     }
 
-    public function destroy(Gelombang $gelombang): RedirectResponse
+    public function destroy(Request $request, Gelombang $gelombang): JsonResponse|RedirectResponse
     {
         $gelombang->delete();
 
-        return redirect()->route('admin.gelombang.index')->with('success', 'Gelombang berhasil dihapus.');
+        return $this->ajaxSuccess($request, 'Gelombang berhasil dihapus.', 'admin.gelombang.index');
     }
 
     /**

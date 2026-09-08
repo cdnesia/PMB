@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\SumberInformasi;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -22,13 +23,13 @@ class SumberInformasiController extends Controller
         return view('admin.sumber-informasi.form', ['sumber' => new SumberInformasi()]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): JsonResponse|RedirectResponse
     {
         $data = $this->validated($request);
 
         SumberInformasi::create($data);
 
-        return redirect()->route('admin.sumber-informasi.index')->with('success', 'Sumber informasi berhasil ditambahkan.');
+        return $this->ajaxSuccess($request, 'Sumber informasi berhasil ditambahkan.', 'admin.sumber-informasi.index', status: 201);
     }
 
     public function edit(SumberInformasi $sumberInformasi): View
@@ -36,20 +37,20 @@ class SumberInformasiController extends Controller
         return view('admin.sumber-informasi.form', ['sumber' => $sumberInformasi]);
     }
 
-    public function update(Request $request, SumberInformasi $sumberInformasi): RedirectResponse
+    public function update(Request $request, SumberInformasi $sumberInformasi): JsonResponse|RedirectResponse
     {
         $data = $this->validated($request, $sumberInformasi->id);
 
         $sumberInformasi->update($data);
 
-        return redirect()->route('admin.sumber-informasi.index')->with('success', 'Sumber informasi berhasil diperbarui.');
+        return $this->ajaxSuccess($request, 'Sumber informasi berhasil diperbarui.', 'admin.sumber-informasi.index');
     }
 
-    public function destroy(SumberInformasi $sumberInformasi): RedirectResponse
+    public function destroy(Request $request, SumberInformasi $sumberInformasi): JsonResponse|RedirectResponse
     {
         $sumberInformasi->delete();
 
-        return redirect()->route('admin.sumber-informasi.index')->with('success', 'Sumber informasi berhasil dihapus.');
+        return $this->ajaxSuccess($request, 'Sumber informasi berhasil dihapus.', 'admin.sumber-informasi.index');
     }
 
     private function validated(Request $request, ?string $id = null): array

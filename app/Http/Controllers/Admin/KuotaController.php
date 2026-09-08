@@ -8,8 +8,10 @@ use App\Models\KelasPerkuliahan;
 use App\Models\Kuota;
 use App\Models\Prodi;
 use App\Models\TahunPenerimaan;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class KuotaController extends Controller
@@ -20,7 +22,12 @@ class KuotaController extends Controller
             ->latest()
             ->paginate(20);
 
-        return view('admin.kuota.index', compact('kuota'));
+        $tahunList = TahunPenerimaan::orderBy('kode')->get();
+        $jalurList = Jalur::orderBy('urutan')->get();
+        $prodiList = Prodi::orderBy('jenjang')->orderBy('nama')->get();
+        $kelasList = KelasPerkuliahan::orderBy('nama')->get();
+
+        return view('admin.kuota.index', compact('kuota', 'tahunList', 'jalurList', 'prodiList', 'kelasList'));
     }
 
     public function create(): View
@@ -34,14 +41,14 @@ class KuotaController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): JsonResponse|RedirectResponse
     {
         $data = $this->validated($request);
         $data['terpakai'] = 0;
 
         Kuota::create($data);
 
-        return redirect()->route('admin.kuota.index')->with('success', 'Kuota berhasil ditambahkan.');
+        return $this->ajaxSuccess($request, 'Kuota berhasil ditambahkan.', 'admin.kuota.index', status: 201);
     }
 
     public function edit(Kuota $kuota): View
@@ -55,24 +62,26 @@ class KuotaController extends Controller
         ]);
     }
 
-    public function update(Request $request, Kuota $kuota): RedirectResponse
+    public function update(Request $request, Kuota $kuota): JsonResponse|RedirectResponse
     {
         $data = $this->validated($request);
 
         if ($data['jumlah'] < $kuota->terpakai) {
-            return back()->withErrors(['jumlah' => 'Jumlah kuota tidak boleh kurang dari kuota terpakai ('.$kuota->terpakai.').']);
+            throw ValidationException::withMessages([
+                'jumlah' => 'Jumlah kuota tidak boleh kurang dari kuota terpakai ('.$kuota->terpakai.').',
+            ]);
         }
 
         $kuota->update($data);
 
-        return redirect()->route('admin.kuota.index')->with('success', 'Kuota berhasil diperbarui.');
+        return $this->ajaxSuccess($request, 'Kuota berhasil diperbarui.', 'admin.kuota.index');
     }
 
-    public function destroy(Kuota $kuota): RedirectResponse
+    public function destroy(Request $request, Kuota $kuota): JsonResponse|RedirectResponse
     {
         $kuota->delete();
 
-        return redirect()->route('admin.kuota.index')->with('success', 'Kuota berhasil dihapus.');
+        return $this->ajaxSuccess($request, 'Kuota berhasil dihapus.', 'admin.kuota.index');
     }
 
     private function validated(Request $request): array

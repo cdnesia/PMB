@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\DokumenPersyaratan;
 use App\Models\Jalur;
 use App\Models\Prodi;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class DokumenPersyaratanController extends Controller
@@ -39,7 +41,7 @@ class DokumenPersyaratanController extends Controller
         return view('admin.dokumen.create', compact('jalurList', 'prodiList'));
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): JsonResponse|RedirectResponse
     {
         $request->validate([
             'jalur_id' => 'nullable|exists:jalur,id',
@@ -49,7 +51,7 @@ class DokumenPersyaratanController extends Controller
         ]);
 
         if (! $request->filled('jalur_id') && ! $request->filled('prodi_id')) {
-            return back()->withErrors(['jalur_id' => 'Pilih minimal satu: jalur atau prodi.'])->withInput();
+            throw ValidationException::withMessages(['jalur_id' => 'Pilih minimal satu: jalur atau prodi.']);
         }
 
         $jalurId = $request->filled('jalur_id') ? $request->jalur_id : null;
@@ -69,7 +71,7 @@ class DokumenPersyaratanController extends Controller
             ]);
         }
 
-        return redirect()->route('admin.dokumen.index')->with('success', 'Dokumen persyaratan berhasil ditambahkan.');
+        return $this->ajaxSuccess($request, 'Dokumen persyaratan berhasil ditambahkan.', 'admin.dokumen.index', status: 201);
     }
 
     public function edit(DokumenPersyaratan $dokumen): View
@@ -80,7 +82,7 @@ class DokumenPersyaratanController extends Controller
         return view('admin.dokumen.edit', compact('dokumen', 'jalurList', 'prodiList'));
     }
 
-    public function update(Request $request, DokumenPersyaratan $dokumen): RedirectResponse
+    public function update(Request $request, DokumenPersyaratan $dokumen): JsonResponse|RedirectResponse
     {
         $data = $request->validate([
             'jalur_id' => 'nullable|exists:jalur,id',
@@ -89,7 +91,7 @@ class DokumenPersyaratanController extends Controller
         ]);
 
         if (! $request->filled('jalur_id') && ! $request->filled('prodi_id')) {
-            return back()->withErrors(['jalur_id' => 'Pilih minimal satu: jalur atau prodi.'])->withInput();
+            throw ValidationException::withMessages(['jalur_id' => 'Pilih minimal satu: jalur atau prodi.']);
         }
 
         $data['jalur_id'] = $request->filled('jalur_id') ? $request->jalur_id : null;
@@ -99,13 +101,13 @@ class DokumenPersyaratanController extends Controller
 
         $dokumen->update($data);
 
-        return redirect()->route('admin.dokumen.index')->with('success', 'Dokumen persyaratan berhasil diperbarui.');
+        return $this->ajaxSuccess($request, 'Dokumen persyaratan berhasil diperbarui.', 'admin.dokumen.index');
     }
 
-    public function destroy(DokumenPersyaratan $dokumen): RedirectResponse
+    public function destroy(Request $request, DokumenPersyaratan $dokumen): JsonResponse|RedirectResponse
     {
         $dokumen->delete();
 
-        return redirect()->route('admin.dokumen.index')->with('success', 'Dokumen persyaratan berhasil dihapus.');
+        return $this->ajaxSuccess($request, 'Dokumen persyaratan berhasil dihapus.', 'admin.dokumen.index');
     }
 }

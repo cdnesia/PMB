@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\JalurController;
 use App\Http\Controllers\Admin\KelasPerkuliahanController;
 use App\Http\Controllers\Admin\KuotaController;
 use App\Http\Controllers\Admin\LaporanController;
+use App\Http\Controllers\Admin\NotifikasiController;
 use App\Http\Controllers\Admin\PendaftarController;
 use App\Http\Controllers\Admin\PengaturanController;
 use App\Http\Controllers\Admin\ProdiController;
@@ -81,6 +82,9 @@ Route::middleware(['auth', 'role:super-admin|admin-pmb'])->prefix('admin')->name
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('laporan', [LaporanController::class, 'index'])->name('laporan.index');
     Route::get('laporan/lolos', [LaporanController::class, 'lolos'])->name('laporan.lolos');
+
+    Route::post('notifikasi/baca-semua', [NotifikasiController::class, 'bacaSemua'])->name('notifikasi.baca-semua');
+    Route::post('notifikasi/{notifikasi}/baca', [NotifikasiController::class, 'baca'])->name('notifikasi.baca');
 
     Route::get('pengaturan', [PengaturanController::class, 'index'])->name('pengaturan.index');
     Route::put('pengaturan', [PengaturanController::class, 'update'])->name('pengaturan.update');

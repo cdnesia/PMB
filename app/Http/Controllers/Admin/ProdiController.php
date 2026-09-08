@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Prodi;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -22,13 +23,13 @@ class ProdiController extends Controller
         return view('admin.prodi.form', ['prodi' => new Prodi()]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): JsonResponse|RedirectResponse
     {
         $data = $this->validated($request);
 
         Prodi::create($data);
 
-        return redirect()->route('admin.prodi.index')->with('success', 'Prodi berhasil ditambahkan.');
+        return $this->ajaxSuccess($request, 'Prodi berhasil ditambahkan.', 'admin.prodi.index', status: 201);
     }
 
     public function edit(Prodi $prodi): View
@@ -36,20 +37,20 @@ class ProdiController extends Controller
         return view('admin.prodi.form', compact('prodi'));
     }
 
-    public function update(Request $request, Prodi $prodi): RedirectResponse
+    public function update(Request $request, Prodi $prodi): JsonResponse|RedirectResponse
     {
         $data = $this->validated($request, $prodi->id);
 
         $prodi->update($data);
 
-        return redirect()->route('admin.prodi.index')->with('success', 'Prodi berhasil diperbarui.');
+        return $this->ajaxSuccess($request, 'Prodi berhasil diperbarui.', 'admin.prodi.index');
     }
 
-    public function destroy(Prodi $prodi): RedirectResponse
+    public function destroy(Request $request, Prodi $prodi): JsonResponse|RedirectResponse
     {
         $prodi->delete();
 
-        return redirect()->route('admin.prodi.index')->with('success', 'Prodi berhasil dihapus.');
+        return $this->ajaxSuccess($request, 'Prodi berhasil dihapus.', 'admin.prodi.index');
     }
 
     private function validated(Request $request, ?string $id = null): array

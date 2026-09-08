@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Jalur;
 use App\Models\KelasPerkuliahan;
 use App\Models\SyaratJalur;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -15,8 +16,9 @@ class JalurController extends Controller
     public function index(): View
     {
         $jalur = Jalur::with(['syarat', 'kelasBiaya.kelas'])->orderBy('urutan')->paginate(20);
+        $kelasList = KelasPerkuliahan::orderBy('nama')->get();
 
-        return view('admin.jalur.index', compact('jalur'));
+        return view('admin.jalur.index', compact('jalur', 'kelasList'));
     }
 
     public function create(): View
@@ -29,7 +31,7 @@ class JalurController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): JsonResponse|RedirectResponse
     {
         $data = $this->validated($request);
 
@@ -37,7 +39,7 @@ class JalurController extends Controller
         $this->syncSyarat($jalur, $request);
         $this->syncBiayaKelas($jalur, $request);
 
-        return redirect()->route('admin.jalur.index')->with('success', 'Jalur berhasil ditambahkan.');
+        return $this->ajaxSuccess($request, 'Jalur berhasil ditambahkan.', 'admin.jalur.index', status: 201);
     }
 
     public function edit(Jalur $jalur): View
@@ -64,7 +66,7 @@ class JalurController extends Controller
         ]);
     }
 
-    public function update(Request $request, Jalur $jalur): RedirectResponse
+    public function update(Request $request, Jalur $jalur): JsonResponse|RedirectResponse
     {
         $data = $this->validated($request, $jalur->id);
 
@@ -72,14 +74,14 @@ class JalurController extends Controller
         $this->syncSyarat($jalur, $request);
         $this->syncBiayaKelas($jalur, $request);
 
-        return redirect()->route('admin.jalur.index')->with('success', 'Jalur berhasil diperbarui.');
+        return $this->ajaxSuccess($request, 'Jalur berhasil diperbarui.', 'admin.jalur.index');
     }
 
-    public function destroy(Jalur $jalur): RedirectResponse
+    public function destroy(Request $request, Jalur $jalur): JsonResponse|RedirectResponse
     {
         $jalur->delete();
 
-        return redirect()->route('admin.jalur.index')->with('success', 'Jalur berhasil dihapus.');
+        return $this->ajaxSuccess($request, 'Jalur berhasil dihapus.', 'admin.jalur.index');
     }
 
     /**

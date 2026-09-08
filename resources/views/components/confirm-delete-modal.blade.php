@@ -3,16 +3,41 @@
         show: false,
         title: 'Konfirmasi Hapus',
         message: 'Yakin ingin menghapus data ini? Tindakan ini tidak bisa dibatalkan.',
-        pendingForm: null,
+        pendingUrl: null,
+        deleting: false,
         open(detail) {
-            this.pendingForm = detail.form;
+            this.pendingUrl = detail.url;
             this.title = detail.title || 'Konfirmasi Hapus';
             this.message = detail.message || 'Yakin ingin menghapus data ini? Tindakan ini tidak bisa dibatalkan.';
             this.show = true;
         },
-        confirm() {
-            this.pendingForm?.submit();
-            this.show = false;
+        async confirm() {
+            if (! this.pendingUrl || this.deleting) return;
+            this.deleting = true;
+
+            try {
+                const res = await fetch(this.pendingUrl, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name=\'csrf-token\']').content,
+                        Accept: 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                });
+                const data = await res.json().catch(() => ({}));
+
+                if (res.ok) {
+                    window.notify('success', data.message || 'Data berhasil dihapus.');
+                    await window.refreshCrudTable();
+                } else {
+                    window.notify('error', data.message || 'Gagal menghapus data.');
+                }
+            } catch (e) {
+                window.notify('error', 'Terjadi kesalahan jaringan, silakan coba lagi.');
+            } finally {
+                this.deleting = false;
+                this.show = false;
+            }
         },
     }"
     x-on:confirm-delete.window="open($event.detail)"
@@ -56,8 +81,11 @@
             </div>
 
             <div class="mt-6 flex justify-end gap-3">
-                <x-ui-button variant="secondary" type="button" x-on:click="show = false">Batal</x-ui-button>
-                <x-ui-button variant="danger" type="button" x-on:click="confirm()">Hapus</x-ui-button>
+                <x-ui-button variant="secondary" type="button" x-on:click="show = false" x-bind:disabled="deleting">Batal</x-ui-button>
+                <x-ui-button variant="danger" type="button" x-on:click="confirm()" x-bind:disabled="deleting">
+                    <span x-show="!deleting">Hapus</span>
+                    <span x-show="deleting">Menghapus...</span>
+                </x-ui-button>
             </div>
         </div>
     </div>

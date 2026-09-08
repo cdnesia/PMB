@@ -21,6 +21,7 @@ use App\Models\Promo;
 use App\Models\SyaratJalur;
 use App\Models\TahunPenerimaan;
 use App\Models\Wilayah;
+use App\Services\AdminNotificationService;
 use App\Services\PendaftaranNotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -457,6 +458,7 @@ class PendaftaranController extends Controller
         }
 
         app(PendaftaranNotificationService::class)->sendPendaftaranDiterima($pendaftaran);
+        app(AdminNotificationService::class)->pendaftarBaru($pendaftaran);
 
         return redirect()
             ->route('mahasiswa.pendaftaran.show', $pendaftaran)
@@ -543,7 +545,7 @@ class PendaftaranController extends Controller
             Storage::disk('local')->delete($pendaftaran->pembayaran->bukti_bayar);
         }
 
-        $pendaftaran->pembayaran()->updateOrCreate(
+        $pembayaran = $pendaftaran->pembayaran()->updateOrCreate(
             ['pendaftaran_id' => $pendaftaran->id],
             [
                 'nominal' => $request->nominal,
@@ -555,6 +557,11 @@ class PendaftaranController extends Controller
                 'catatan' => null,
             ]
         );
+
+        // Relasi "pembayaran" bisa sudah ter-cache (null/lama) dari pengecekan
+        // bukti_bayar di atas, jadi disegarkan agar notifikasi memuat nominal terbaru.
+        $pendaftaran->setRelation('pembayaran', $pembayaran);
+        app(AdminNotificationService::class)->pembayaranMenungguVerifikasi($pendaftaran);
 
         return redirect()
             ->route('mahasiswa.pendaftaran.show', $pendaftaran)
@@ -603,6 +610,11 @@ class PendaftaranController extends Controller
 
         // Majukan status pendaftaran ke "daftar ulang"
         $pendaftaran->update(['status' => 'daftar_ulang']);
+
+        // Relasi "daftarUlang" bisa sudah ter-cache (null/lama) dari pengecekan
+        // bukti_bayar di atas, jadi disegarkan agar notifikasi memuat nominal terbaru.
+        $pendaftaran->setRelation('daftarUlang', $daftarUlang);
+        app(AdminNotificationService::class)->daftarUlangMenungguVerifikasi($pendaftaran);
 
         return redirect()
             ->route('mahasiswa.pendaftaran.show', $pendaftaran)

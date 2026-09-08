@@ -128,6 +128,20 @@
 
             {{-- Main --}}
             <div class="lg:pl-72">
+                @php
+                    $notifItems = Auth::user()->notifications()->latest()->take(10)->get()->map(fn ($n) => [
+                        'id' => $n->id,
+                        'judul' => $n->data['judul'] ?? 'Notifikasi',
+                        'pesan' => $n->data['pesan'] ?? '',
+                        'url' => $n->data['url'] ?? '#',
+                        'ikon' => $n->data['ikon'] ?? 'info',
+                        'unread' => is_null($n->read_at),
+                        'waktu' => $n->created_at->diffForHumans(),
+                        'markUrl' => route('admin.notifikasi.baca', $n->id),
+                    ])->values();
+                    $notifUnreadCount = Auth::user()->unreadNotifications()->count();
+                @endphp
+
                 {{-- Top bar --}}
                 <header class="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-gray-200 bg-white/90 px-4 backdrop-blur sm:px-6">
                     <button type="button" @click="sidebarOpen = true" class="rounded-md p-1.5 text-gray-500 hover:bg-gray-100 lg:hidden">
@@ -140,8 +154,58 @@
                         <p class="hidden text-xs text-gray-500 sm:block">Sistem Penerimaan Mahasiswa Baru</p>
                     </div>
 
-                    <div class="ml-auto flex items-center gap-2" x-data="{ open: false }">
-                        <div class="relative">
+                    <div class="ml-auto flex items-center gap-2">
+                        <div class="relative" x-data="notifBell({
+                            items: @js($notifItems),
+                            unreadCount: @js($notifUnreadCount),
+                            markAllUrl: @js(route('admin.notifikasi.baca-semua')),
+                        })">
+                            <button type="button" @click="open = !open"
+                                class="relative flex h-9 w-9 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100">
+                                <x-icon name="bell" class="h-5 w-5" />
+                                <span x-show="unreadCount > 0" x-cloak
+                                    class="absolute right-1 top-1 flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold text-white"
+                                    x-text="unreadCount > 9 ? '9+' : unreadCount"></span>
+                            </button>
+
+                            <div x-show="open" x-cloak @click.outside="open = false"
+                                 x-transition:enter="transition ease-out duration-100"
+                                 x-transition:enter-start="opacity-0 scale-95"
+                                 x-transition:enter-end="opacity-100 scale-100"
+                                 class="absolute right-0 mt-2 w-80 origin-top-right rounded-lg bg-white py-1 shadow-lg ring-1 ring-black/5">
+                                <div class="flex items-center justify-between border-b border-gray-100 px-4 py-2.5">
+                                    <span class="text-sm font-semibold text-gray-900">Notifikasi</span>
+                                    <button type="button" x-show="unreadCount > 0" x-on:click="markAllRead()" class="text-xs font-medium text-indigo-600 hover:text-indigo-700">
+                                        Tandai semua dibaca
+                                    </button>
+                                </div>
+                                <div class="max-h-96 overflow-y-auto">
+                                    <template x-for="item in items" :key="item.id">
+                                        <button type="button" x-on:click="markRead(item)"
+                                            class="flex w-full items-start gap-3 px-4 py-3 text-left transition hover:bg-gray-50"
+                                            :class="item.unread ? 'bg-indigo-50/50' : ''">
+                                            <span class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-indigo-600">
+                                                {{-- x-icon me-render di server, jadi tiap varian ikon dirender statis lalu ditoggle via x-show sesuai item.ikon. --}}
+                                                <span x-show="item.ikon === 'user'"><x-icon name="user" class="h-4 w-4" /></span>
+                                                <span x-show="item.ikon === 'credit-card'"><x-icon name="credit-card" class="h-4 w-4" /></span>
+                                                <span x-show="!['user', 'credit-card'].includes(item.ikon)"><x-icon name="info" class="h-4 w-4" /></span>
+                                            </span>
+                                            <span class="min-w-0 flex-1">
+                                                <span class="block text-sm font-medium text-gray-900" x-text="item.judul"></span>
+                                                <span class="mt-0.5 block truncate text-xs text-gray-500" x-text="item.pesan"></span>
+                                                <span class="mt-0.5 block text-xs text-gray-400" x-text="item.waktu"></span>
+                                            </span>
+                                            <span x-show="item.unread" class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-indigo-600"></span>
+                                        </button>
+                                    </template>
+                                    <template x-if="items.length === 0">
+                                        <p class="px-4 py-6 text-center text-sm text-gray-400">Belum ada notifikasi.</p>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="relative" x-data="{ open: false }">
                             <button type="button" @click="open = !open"
                                 class="flex items-center gap-2 rounded-full py-1 pl-1 pr-2 transition hover:bg-gray-100">
                                 <span class="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-600 text-sm font-semibold text-white">

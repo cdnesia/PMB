@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CbtSoal;
 use App\Models\Jalur;
 use App\Models\Prodi;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -40,11 +41,11 @@ class CbtSoalController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): JsonResponse|RedirectResponse
     {
         CbtSoal::create($this->validated($request));
 
-        return redirect()->route('admin.cbt-soal.index')->with('success', 'Soal CBT berhasil ditambahkan.');
+        return $this->ajaxSuccess($request, 'Soal CBT berhasil ditambahkan.', 'admin.cbt-soal.index', status: 201);
     }
 
     public function edit(CbtSoal $soal): View
@@ -57,18 +58,18 @@ class CbtSoalController extends Controller
         ]);
     }
 
-    public function update(Request $request, CbtSoal $soal): RedirectResponse
+    public function update(Request $request, CbtSoal $soal): JsonResponse|RedirectResponse
     {
         $soal->update($this->validated($request));
 
-        return redirect()->route('admin.cbt-soal.index')->with('success', 'Soal CBT berhasil diperbarui.');
+        return $this->ajaxSuccess($request, 'Soal CBT berhasil diperbarui.', 'admin.cbt-soal.index');
     }
 
-    public function destroy(CbtSoal $soal): RedirectResponse
+    public function destroy(Request $request, CbtSoal $soal): JsonResponse|RedirectResponse
     {
         $soal->delete();
 
-        return redirect()->route('admin.cbt-soal.index')->with('success', 'Soal CBT berhasil dihapus.');
+        return $this->ajaxSuccess($request, 'Soal CBT berhasil dihapus.', 'admin.cbt-soal.index');
     }
 
     private function validated(Request $request): array

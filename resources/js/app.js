@@ -102,6 +102,61 @@ Alpine.data('toast', (initial = []) => ({
 }));
 
 /**
+ * Alpine.data untuk lonceng notifikasi di header admin. Daftar awal & jumlah
+ * belum-dibaca dirender dari server (Blade); komponen ini hanya menangani
+ * buka/tutup dropdown dan menandai dibaca lewat AJAX tanpa reload halaman.
+ */
+Alpine.data('notifBell', (options = {}) => ({
+    open: false,
+    items: options.items || [],
+    unreadCount: options.unreadCount || 0,
+    markAllUrl: options.markAllUrl,
+
+    async markRead(item) {
+        if (!item.unread) {
+            window.location.href = item.url;
+            return;
+        }
+
+        try {
+            await fetch(item.markUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    Accept: 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            });
+        } catch (e) {
+            // Tetap arahkan pengguna meski penandaan gagal — tidak boleh memblokir navigasi.
+        }
+
+        item.unread = false;
+        this.unreadCount = Math.max(0, this.unreadCount - 1);
+        window.location.href = item.url;
+    },
+
+    async markAllRead() {
+        if (this.unreadCount === 0) return;
+
+        try {
+            await fetch(this.markAllUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    Accept: 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            });
+            this.items.forEach((item) => (item.unread = false));
+            this.unreadCount = 0;
+        } catch (e) {
+            window.notify('error', 'Gagal menandai semua notifikasi, coba lagi.');
+        }
+    },
+}));
+
+/**
  * Directive Alpine `x-select2` — inisialisasi Select2 pada <select>,
  * tetap kompatibel dengan `x-model`, `@change`, dan `x-for` (opsi dinamis).
  */
@@ -156,5 +211,143 @@ document.addEventListener('alpine:init', () => {
         setTimeout(mount, 0);
     });
 });
+
+/**
+ * Ambil ulang isi tabel CRUD (elemen dengan id="crud-table") dari halaman
+ * saat ini via AJAX, lalu tukar ke DOM tanpa reload penuh. Dipakai setelah
+ * tambah/edit/hapus data lewat modal supaya tabel & paginasi selalu akurat
+ * tanpa menduplikasi logika render tabel di JavaScript.
+ */
+window.refreshCrudTable = async function () {
+    const current = document.getElementById('crud-table');
+    if (! current) return;
+
+    try {
+        const res = await fetch(window.location.href, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        });
+        const html = await res.text();
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        const fresh = doc.getElementById('crud-table');
+
+        if (fresh) {
+            current.replaceWith(fresh);
+            window.Alpine.initTree(fresh);
+        } else {
+            window.location.reload();
+        }
+    } catch (e) {
+        window.location.reload();
+    }
+};
+
+/**
+ * Serialisasi nilai (skalar, boolean, array, atau objek/array-of-objects
+ * bersarang) ke FormData dengan penamaan gaya Laravel: `key[i][sub]` untuk
+ * array/objek bersarang, supaya request()->validate(['x.*.y' => ...]) di
+ * backend tetap jalan seperti form HTML biasa.
+ */
+function appendToFormData(body, key, value) {
+    if (value === null || value === undefined) return;
+    if (typeof value === 'boolean') {
+        body.append(key, value ? '1' : '0');
+        return;
+    }
+    if (Array.isArray(value)) {
+        value.forEach((v, i) => appendToFormData(body, `${key}[${i}]`, v));
+        return;
+    }
+    if (typeof value === 'object') {
+        Object.entries(value).forEach(([k, v]) => appendToFormData(body, `${key}[${k}]`, v));
+        return;
+    }
+    body.append(key, value);
+}
+
+/**
+ * Alpine.data generik untuk modal tambah/edit lewat AJAX. Setiap halaman
+ * CRUD memakai `x-data="crudModal({ storeUrl, defaults })"` lalu memanggil
+ * openCreate()/openEdit(data) dari tombol Tambah/Edit di tabel. Opsional
+ * `transform(mode, form)` dipakai saat bentuk payload create/update berbeda
+ * dari bentuk state form (mis. create menerima banyak baris sekaligus).
+ * Key tambahan apa pun di `options` (mis. method khusus halaman seperti
+ * addRow/removeRow) ikut disebar ke state komponen agar bisa dipanggil dari
+ * template modal halaman tersebut.
+ */
+Alpine.data('crudModal', (options = {}) => ({
+    ...options,
+    show: false,
+    mode: 'create',
+    storeUrl: options.storeUrl,
+    defaults: options.defaults || {},
+    transformFn: options.transform || null,
+    form: {},
+    errors: {},
+    submitting: false,
+
+    openCreate() {
+        this.mode = 'create';
+        this.form = JSON.parse(JSON.stringify(this.defaults));
+        this.errors = {};
+        this.show = true;
+    },
+
+    openEdit(data) {
+        this.mode = 'edit';
+        this.form = { ...JSON.parse(JSON.stringify(this.defaults)), ...data };
+        this.errors = {};
+        this.show = true;
+    },
+
+    error(field) {
+        return this.errors?.[field]?.[0] || null;
+    },
+
+    async submit() {
+        this.submitting = true;
+        this.errors = {};
+
+        const url = this.mode === 'edit' ? this.form._updateUrl : this.storeUrl;
+        const body = new FormData();
+        const payload = typeof this.transformFn === 'function' ? this.transformFn(this.mode, this.form) : this.form;
+
+        Object.entries(payload).forEach(([key, value]) => {
+            if (key === '_updateUrl') return;
+            appendToFormData(body, key, value);
+        });
+
+        if (this.mode === 'edit') {
+            body.append('_method', 'PUT');
+        }
+
+        try {
+            const res = await fetch(url, {
+                method: 'POST',
+                body,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    Accept: 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            });
+            const data = await res.json().catch(() => ({}));
+
+            if (res.ok) {
+                this.show = false;
+                window.notify('success', data.message || 'Data berhasil disimpan.');
+                await window.refreshCrudTable();
+            } else if (res.status === 422) {
+                this.errors = data.errors || {};
+                Object.values(this.errors).flat().forEach((msg) => window.notify('error', msg));
+            } else {
+                window.notify('error', data.message || 'Terjadi kesalahan, silakan coba lagi.');
+            }
+        } catch (e) {
+            window.notify('error', 'Terjadi kesalahan jaringan, silakan coba lagi.');
+        } finally {
+            this.submitting = false;
+        }
+    },
+}));
 
 Alpine.start();
