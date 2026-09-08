@@ -36,11 +36,12 @@ class LaporanController extends Controller
                 return $j;
             });
 
-        // Rekap per prodi
+        // Rekap per prodi. Hanya pilihan 1 yang dihitung, karena hanya pilihan
+        // itu yang mengurangi kuota prodi (lihat PendaftaranController::store).
         $perProdi = Prodi::orderBy('jenjang')->orderBy('nama')
             ->get()
             ->map(function ($p) {
-                $pilihan = PendaftaranProdi::where('prodi_id', $p->id);
+                $pilihan = PendaftaranProdi::where('prodi_id', $p->id)->where('urutan', 1);
                 $p->pendaftar = (clone $pilihan)->distinct('pendaftaran_id')->count('pendaftaran_id');
                 $p->lolos = (clone $pilihan)->where('status', 'lolos')->count();
                 return $p;
