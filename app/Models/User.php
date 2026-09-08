@@ -99,7 +99,7 @@ class User extends Authenticatable
         }
 
         if ($filePaths !== []) {
-            Storage::disk('public')->delete($filePaths);
+            Storage::disk('local')->delete($filePaths);
         }
 
         $this->delete();

@@ -142,4 +142,24 @@ class RegistrationTest extends TestCase
         $response->assertSessionMissing('_old_input.password');
         $response->assertSessionMissing('_old_input.password_confirmation');
     }
+
+    public function test_registration_is_rate_limited(): void
+    {
+        // Payload sengaja tidak valid (tanpa nama) supaya percobaan gagal validasi
+        // dan tetap berstatus guest, sehingga tiap request benar-benar menghitung
+        // ke limiter alih-alih dialihkan oleh middleware `guest` setelah login.
+        $payload = [
+            'email' => 'test@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ];
+
+        for ($i = 0; $i < 6; $i++) {
+            $this->post('/register', $payload);
+        }
+
+        $response = $this->post('/register', $payload);
+
+        $response->assertStatus(429);
+    }
 }

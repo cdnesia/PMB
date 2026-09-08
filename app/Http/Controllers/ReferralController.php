@@ -23,17 +23,26 @@ class ReferralController extends Controller
             ->where('is_active', true)
             ->where(function ($q) use ($term) {
                 $q->where('kode', 'like', "%{$term}%")
-                    ->orWhere('nama_instansi', 'like', "%{$term}%");
+                    ->orWhere('nama_instansi', 'like', "%{$term}%")
+                    ->orWhereHas('user', fn ($q) => $q->where('name', 'like', "%{$term}%"));
             })
             ->with('user')
             ->orderBy('kode')
             ->limit(10)
             ->get();
 
-        $results = $referrer->map(fn (Referrer $r) => [
-            'id' => $r->kode,
-            'text' => $r->kode.' — '.($r->nama_instansi ?? $r->user?->name),
-        ]);
+        $results = $referrer->map(function (Referrer $r) {
+            $label = $r->user?->name;
+
+            if ($r->nama_instansi) {
+                $label = $label ? "{$label} · {$r->nama_instansi}" : $r->nama_instansi;
+            }
+
+            return [
+                'id' => $r->kode,
+                'text' => $label ? "{$r->kode} — {$label}" : $r->kode,
+            ];
+        });
 
         return response()->json(['results' => $results]);
     }

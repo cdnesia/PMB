@@ -339,7 +339,7 @@
                         </div>
                         <div class="flex items-center gap-3">
                             @if ($d->file_path)
-                                <a href="{{ asset('storage/'.$d->file_path) }}" target="_blank" rel="noopener"
+                                <a href="{{ route('dokumen.persyaratan', $d) }}" target="_blank" rel="noopener"
                                    class="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-sm font-medium text-indigo-600 transition hover:bg-indigo-50 hover:text-indigo-700">
                                     <x-icon name="eye" class="h-4 w-4" />
                                     {{ __('pendaftaran.view') }}
@@ -381,7 +381,7 @@
                                 </div>
                             </div>
                             @if ($j->syarat?->tipe === 'file' && $j->file_path)
-                                <a href="{{ asset('storage/'.$j->file_path) }}" target="_blank" rel="noopener"
+                                <a href="{{ route('dokumen.syarat', $j) }}" target="_blank" rel="noopener"
                                    class="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-sm font-medium text-indigo-600 transition hover:bg-indigo-50 hover:text-indigo-700">
                                     <x-icon name="eye" class="h-4 w-4" />
                                     {{ __('pendaftaran.view') }}

@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Referrer;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -28,6 +29,17 @@ class ReferralSearchTest extends TestCase
 
         $response->assertOk();
         $response->assertJsonFragment(['id' => 'REF-ABC']);
+    }
+
+    public function test_search_matches_by_referrer_name_too(): void
+    {
+        $user = User::factory()->create(['name' => 'Budi Santoso']);
+        Referrer::factory()->karyawan()->create(['user_id' => $user->id, 'kode' => 'REF-BUDI']);
+
+        $response = $this->getJson('/referral/search?q=Budi San');
+
+        $response->assertOk();
+        $response->assertJsonFragment(['id' => 'REF-BUDI']);
     }
 
     public function test_inactive_referrer_is_excluded_from_search(): void

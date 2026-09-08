@@ -27,6 +27,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -337,6 +338,7 @@ class PendaftaranController extends Controller
             'dokumen' => 'nullable|array',
             'dokumen.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'syarat_field' => 'nullable|array',
+            'syarat_field.*' => 'nullable|string|max:1000',
             'syarat_file' => 'nullable|array',
             'syarat_file.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ], [
@@ -478,7 +480,7 @@ class PendaftaranController extends Controller
                 'pendaftaran_id' => $pendaftaran->id,
                 'dokumen_persyaratan_id' => $doc->id,
                 'nama' => $doc->nama,
-                'file_path' => $file ? $file->store('dokumen', 'public') : null,
+                'file_path' => $file ? $file->store('dokumen', 'local') : null,
                 'file_name' => $file ? $file->getClientOriginalName() : null,
                 'file_size' => $file ? $file->getSize() : null,
                 'status' => $file ? 'menunggu' : 'belum_diunggah',
@@ -495,7 +497,7 @@ class PendaftaranController extends Controller
                 'pendaftaran_id' => $pendaftaran->id,
                 'syarat_jalur_id' => $s->id,
                 'nilai' => $s->tipe === 'field' ? ($fieldInput[$s->id] ?? null) : null,
-                'file_path' => $s->tipe === 'file' && $file ? $file->store('syarat', 'public') : null,
+                'file_path' => $s->tipe === 'file' && $file ? $file->store('syarat', 'local') : null,
                 'file_name' => $s->tipe === 'file' && $file ? $file->getClientOriginalName() : null,
                 'file_size' => $s->tipe === 'file' && $file ? $file->getSize() : null,
             ]);
@@ -533,12 +535,16 @@ class PendaftaranController extends Controller
 
         $file = $request->file('bukti_bayar');
 
+        if ($pendaftaran->pembayaran?->bukti_bayar) {
+            Storage::disk('local')->delete($pendaftaran->pembayaran->bukti_bayar);
+        }
+
         $pendaftaran->pembayaran()->updateOrCreate(
             ['pendaftaran_id' => $pendaftaran->id],
             [
                 'nominal' => $request->nominal,
                 'status' => 'menunggu_verifikasi',
-                'bukti_bayar' => $file->store('pembayaran_pendaftaran', 'public'),
+                'bukti_bayar' => $file->store('pembayaran_pendaftaran', 'local'),
                 'file_name' => $file->getClientOriginalName(),
                 'file_size' => $file->getSize(),
                 'tanggal_bayar' => now()->toDateString(),
@@ -574,12 +580,16 @@ class PendaftaranController extends Controller
 
         $file = $request->file('bukti_bayar');
 
+        if ($pendaftaran->daftarUlang?->bukti_bayar) {
+            Storage::disk('local')->delete($pendaftaran->daftarUlang->bukti_bayar);
+        }
+
         $daftarUlang = $pendaftaran->daftarUlang()->updateOrCreate(
             ['pendaftaran_id' => $pendaftaran->id],
             [
                 'nominal' => $request->nominal,
                 'status' => 'menunggu_verifikasi',
-                'bukti_bayar' => $file->store('daftar_ulang', 'public'),
+                'bukti_bayar' => $file->store('daftar_ulang', 'local'),
                 'file_name' => $file->getClientOriginalName(),
                 'file_size' => $file->getSize(),
                 'tanggal_bayar' => now()->toDateString(),

@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\SettingProdiController;
 use App\Http\Controllers\Admin\SumberInformasiController;
 use App\Http\Controllers\Admin\TahunPenerimaanController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\DokumenController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\Mahasiswa\CbtController as MahasiswaCbtController;
 use App\Http\Controllers\Mahasiswa\DashboardController as MahasiswaDashboardController;
@@ -65,6 +66,14 @@ Route::middleware('auth')->group(function () {
 
     // JSON wilayah untuk cascading dropdown (provinsi → kota → kecamatan → kelurahan)
     Route::get('/wilayah', [WilayahController::class, 'index'])->name('wilayah.index');
+
+    // Unduh dokumen pendaftar — akses dicek per berkas (pemilik pendaftaran atau admin) di controller.
+    Route::prefix('dokumen')->name('dokumen.')->group(function () {
+        Route::get('persyaratan/{dokumen}', [DokumenController::class, 'persyaratan'])->name('persyaratan');
+        Route::get('syarat/{syarat}', [DokumenController::class, 'syarat'])->name('syarat');
+        Route::get('pembayaran/{pembayaran}', [DokumenController::class, 'pembayaran'])->name('pembayaran');
+        Route::get('daftar-ulang/{daftarUlang}', [DokumenController::class, 'daftarUlang'])->name('daftar-ulang');
+    });
 });
 
 // ===== Area Admin (Panitia) =====
@@ -132,10 +141,10 @@ Route::middleware(['auth', 'role:mahasiswa'])->prefix('mahasiswa')->name('mahasi
     Route::get('/dashboard', [MahasiswaDashboardController::class, 'index'])->name('dashboard');
     Route::get('/pendaftaran', [PendaftaranController::class, 'index'])->name('pendaftaran.index');
     Route::get('/pendaftaran/create', [PendaftaranController::class, 'create'])->name('pendaftaran.create');
-    Route::post('/pendaftaran', [PendaftaranController::class, 'store'])->name('pendaftaran.store');
+    Route::post('/pendaftaran', [PendaftaranController::class, 'store'])->middleware('throttle:20,1')->name('pendaftaran.store');
     Route::get('/pendaftaran/{pendaftaran}', [PendaftaranController::class, 'show'])->name('pendaftaran.show');
-    Route::post('/pendaftaran/{pendaftaran}/bayar', [PendaftaranController::class, 'bayar'])->name('pendaftaran.bayar');
-    Route::post('/pendaftaran/{pendaftaran}/daftar-ulang', [PendaftaranController::class, 'daftarUlang'])->name('pendaftaran.daftar-ulang');
+    Route::post('/pendaftaran/{pendaftaran}/bayar', [PendaftaranController::class, 'bayar'])->middleware('throttle:20,1')->name('pendaftaran.bayar');
+    Route::post('/pendaftaran/{pendaftaran}/daftar-ulang', [PendaftaranController::class, 'daftarUlang'])->middleware('throttle:20,1')->name('pendaftaran.daftar-ulang');
 
     Route::get('/cbt', [MahasiswaCbtController::class, 'index'])->name('cbt.index');
     Route::post('/cbt/{pendaftaran}/mulai', [MahasiswaCbtController::class, 'mulai'])->name('cbt.mulai');
