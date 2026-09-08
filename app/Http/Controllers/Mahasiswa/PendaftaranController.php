@@ -66,20 +66,17 @@ class PendaftaranController extends Controller
 
         $jalur = Jalur::where('is_active', true)->orderBy('urutan')->get();
 
-        // Daftar jalur untuk kebutuhan client-side (nama + biaya default jalur)
         $jalurList = $jalur->map(fn ($j) => [
             'id' => $j->id,
             'nama' => $j->namaLokal(),
             'biaya_default' => (float) $j->biaya_pendaftaran,
         ])->values()->all();
 
-        // Biaya pendaftaran per kombinasi jalur + kelas (override biaya default jalur).
         $biayaKelas = JalurKelas::all()
             ->groupBy('jalur_id')
             ->map(fn ($rows) => $rows->mapWithKeys(fn ($r) => [$r->kelas_id => (float) $r->biaya_pendaftaran])->all())
             ->all();
 
-        // Matriks jalur yang tersedia per gelombang (untuk filter di client)
         $gelombangMap = $gelombang->map(fn ($g) => [
             'id' => $g->id,
             'nama' => $g->namaLokal(),
@@ -107,13 +104,11 @@ class PendaftaranController extends Controller
             })->all();
         })->all();
 
-        // Persyaratan dokumen (flat, dengan scope jalur/prodi untuk dicocokkan di client)
         $dokumen = DokumenPersyaratan::where('is_active', true)
             ->get()
             ->map(fn ($d) => $this->docShape($d))
             ->values();
 
-        // Syarat khusus per jalur (field / file)
         $syaratMap = SyaratJalur::where('is_active', true)
             ->get()
             ->groupBy('jalur_id')
@@ -126,7 +121,6 @@ class PendaftaranController extends Controller
             ])->values()->all())
             ->all();
 
-        // Promo aktif yang berlaku untuk biaya pendaftaran (beserta ketentuan jalur+prodi+kelas)
         $promoList = Promo::with('ketentuan')
             ->where('is_active', true)
             ->whereIn('jenis', ['pendaftaran', 'semua'])
@@ -154,14 +148,11 @@ class PendaftaranController extends Controller
                 'label' => $p->kode.' — '.$p->namaLokal().' ('.$p->labelPotongan().')',
             ])->values()->all();
 
-        // Daftar negara (untuk pendaftar WNA) — tidak termasuk Indonesia.
         $negaraList = Wilayah::where('level', Wilayah::LEVEL_NEGARA)
             ->where('kode', '!=', '000000')
             ->orderBy('kode')
             ->get();
 
-        // Kecamatan yang sudah dipilih sebelumnya (bila formulir gagal validasi),
-        // supaya dropdown pencarian kecamatan tidak kosong lagi setelah reload.
         $kecamatanTerpilih = null;
         if (old('kecamatan')) {
             $kecamatan = Wilayah::with('parent.parent')->find(old('kecamatan'));
@@ -177,10 +168,8 @@ class PendaftaranController extends Controller
             }
         }
 
-        // Daftar pekerjaan (untuk pendaftar yang sudah bekerja — opsional).
         $pekerjaanList = Pekerjaan::orderBy('kode')->get();
 
-        // Kamus referensi NEO Feeder untuk biodata (dengan fallback kosong bila API gagal).
         $refs = $this->neoReferences();
 
         return view('mahasiswa.pendaftaran.create', compact(
@@ -201,11 +190,6 @@ class PendaftaranController extends Controller
         ));
     }
 
-    /**
-     * Ambil kamus referensi biodata dari database lokal.
-     * Data referensi (contoh: agama) diinkronkan dari NEO Feeder oleh admin,
-     * sehingga halaman pendaftaran tidak perlu memanggil NEO Feeder secara langsung.
-     */
     private function neoReferences(): array
     {
         return [
@@ -252,8 +236,8 @@ class PendaftaranController extends Controller
             'kelas1' => 'required|exists:kelas_perkuliahan,id',
             'prodi2' => 'nullable|exists:prodi,id',
             'kelas2' => 'nullable|required_with:prodi2|exists:kelas_perkuliahan,id',
-            'nik' => 'required|digits:16|unique:pendaftar,nik',
-            'nisn' => 'required|digits:10|unique:pendaftar,nisn',
+            'nik' => 'required|digits:9|unique:pendaftar,nik',
+            'nisn' => 'required|digits:5|unique:pendaftar,nisn',
             'tempat_lahir' => 'required|string|max:100',
             'tanggal_lahir' => 'required|date|before:today',
             'jenis_kelamin' => 'required|in:L,P',
@@ -290,7 +274,6 @@ class PendaftaranController extends Controller
 
         $gelombang = Gelombang::with('jalur')->find($request->gelombang_id);
 
-        // Validasi gelombang masih dibuka (aktif + dalam rentang tanggal)
         $today = now()->toDateString();
         if (! $gelombang
             || ! $gelombang->is_active
@@ -301,13 +284,10 @@ class PendaftaranController extends Controller
 
         $jalurId = $request->input('jalur_id');
 
-        // Pastikan jalur yang dipilih tersedia di gelombang ini
         if (! $gelombang->jalur->contains('id', $jalurId)) {
             return back()->withErrors(['jalur_id' => 'Jalur ini tidak tersedia pada gelombang yang dipilih.'])->withInput();
         }
 
-        // Validasi promo (opsional) — harus aktif, dalam periode, berlaku untuk biaya
-        // pendaftaran, dan cocok dengan kombinasi jalur + prodi + kelas yang dipilih.
         $promo = null;
         if ($request->filled('promo_id')) {
             $promo = Promo::with('ketentuan')->find($request->input('promo_id'));
@@ -348,14 +328,11 @@ class PendaftaranController extends Controller
             }
         }
 
-        // Kumpulkan dokumen yang wajib diunggah berdasarkan jalur + prodi pilihan
         $prodiIds = array_column($pilihan, 'prodi_id');
         $requiredDocs = $this->resolveRequiredDocuments($jalurId, $prodiIds);
 
-        // Syarat khusus jalur terpilih
         $syarat = SyaratJalur::where('jalur_id', $jalurId)->where('is_active', true)->get();
 
-        // Validasi file yang diunggah
         $request->validate([
             'dokumen' => 'nullable|array',
             'dokumen.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
@@ -378,7 +355,6 @@ class PendaftaranController extends Controller
             }
         }
 
-        // Validasi syarat khusus (wajib field/file terisi)
         $syaratFieldInput = $request->input('syarat_field', []);
         $syaratFileInput = $request->file('syarat_file', []);
         foreach ($syarat as $s) {
@@ -405,7 +381,6 @@ class PendaftaranController extends Controller
                     'status' => 'draft',
                 ]);
 
-                // Simpan biodata pendaftar
                 $wProv = Wilayah::find($request->provinsi);
                 $wKota = Wilayah::find($request->kota);
                 $wKec = Wilayah::find($request->kecamatan);
@@ -419,8 +394,6 @@ class PendaftaranController extends Controller
                     'tempat_lahir' => $request->tempat_lahir,
                     'tanggal_lahir' => $request->tanggal_lahir,
                     'jenis_kelamin' => $request->jenis_kelamin,
-                    // Selalu simpan nama Bahasa Indonesia (bukan hasil terjemahan tampilan form)
-                    // supaya data biodata konsisten untuk admin & sinkronisasi NEO Feeder.
                     'agama' => Agama::where('kode', $request->agama)->value('nama'),
                     'agama_kode' => $request->agama,
                     'kewarganegaraan' => $request->kewarganegaraan,
@@ -459,14 +432,11 @@ class PendaftaranController extends Controller
                 $this->saveDokumen($pendaftaran, $requiredDocs, $uploads);
                 $this->saveSyarat($pendaftaran, $syarat, $syaratFieldInput, $syaratFileInput);
 
-                // Nomor pendaftaran berurutan dari kolom auto-increment no_urut.
                 $pendaftaran->refresh();
                 $pendaftaran->update([
                     'nomor_pendaftaran' => sprintf('PMB-%s-%05d', $tahun->kode, $pendaftaran->no_urut),
                 ]);
 
-                // Jika tidak ada biaya pendaftaran (gratis/promo 100%), langsung lunas.
-                // Jika ada biaya, majukan ke "menunggu_pembayaran" agar pendaftar bisa langsung membayar.
                 $pendaftaran->load(['prodiPilihan', 'jalur', 'promo']);
                 if ($pendaftaran->biayaPendaftaranAkhir() > 0) {
                     $pendaftaran->update(['status' => 'menunggu_pembayaran']);
@@ -480,7 +450,6 @@ class PendaftaranController extends Controller
             return back()->withErrors($e->errors())->withInput();
         }
 
-        // Kirim notifikasi konfirmasi ke email pendaftar (tidak memblokir alur).
         app(PendaftaranNotificationService::class)->sendPendaftaranDiterima($pendaftaran);
 
         return redirect()
@@ -488,14 +457,6 @@ class PendaftaranController extends Controller
             ->with('success', 'Pendaftaran berhasil disimpan. Nomor pendaftaran Anda: '.$pendaftaran->nomor_pendaftaran);
     }
 
-    /**
-     * Resolusi dokumen yang berlaku untuk kombinasi jalur + prodi terpilih.
-     * Suatu dokumen berlaku jika:
-     *   - jalur_id kosong ATAU sama dengan jalur terpilih, DAN
-     *   - prodi_id kosong ATAU termasuk dalam prodi terpilih.
-     *
-     * @return Collection<int, DokumenPersyaratan>
-     */
     private function resolveRequiredDocuments(string $jalurId, array $prodiIds)
     {
         return DokumenPersyaratan::where('is_active', true)
