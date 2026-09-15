@@ -29,6 +29,7 @@ class RolePermissionSeeder extends Seeder
             'kelola-pengumuman',
             'kelola-cbt',
             'kelola-user',
+            'kelola-role',
             'kelola-referrer',
             'dashboard-mahasiswa',
             'pendaftaran-mahasiswa',

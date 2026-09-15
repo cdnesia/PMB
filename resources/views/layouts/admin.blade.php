@@ -50,9 +50,9 @@
                     $navGroups = [
                         [
                             'label' => 'Pendaftaran',
-                            'items' => [
-                                'Pendaftar' => ['icon' => 'user', 'route' => 'admin.pendaftar.index', 'match' => 'admin.pendaftar.*'],
-                            ],
+                            'items' => array_filter([
+                                'Pendaftar' => Auth::user()->can('kelola-pendaftaran') ? ['icon' => 'user', 'route' => 'admin.pendaftar.index', 'match' => 'admin.pendaftar.*'] : null,
+                            ]),
                         ],
                         [
                             'label' => 'Tes CBT',
@@ -63,35 +63,40 @@
                         ],
                         [
                             'label' => 'Pengaturan',
-                            'items' => [
-                                'Tahun Penerimaan' => ['icon' => 'calendar', 'route' => 'admin.tahun.index', 'match' => 'admin.tahun.*'],
-                                'Gelombang' => ['icon' => 'adjust', 'route' => 'admin.gelombang.index', 'match' => 'admin.gelombang.*'],
-                                'Jalur & Biaya' => ['icon' => 'route', 'route' => 'admin.jalur.index', 'match' => 'admin.jalur.*'],
-                                'Program Studi' => ['icon' => 'academic', 'route' => 'admin.prodi.index', 'match' => 'admin.prodi.*'],
-                                'Kelas Perkuliahan' => ['icon' => 'square-stack', 'route' => 'admin.kelas.index', 'match' => 'admin.kelas.*'],
-                                'Kuota Prodi' => ['icon' => 'chart', 'route' => 'admin.kuota.index', 'match' => 'admin.kuota.*'],
+                            'items' => array_filter([
+                                'Tahun Penerimaan' => Auth::user()->can('kelola-tahun') ? ['icon' => 'calendar', 'route' => 'admin.tahun.index', 'match' => 'admin.tahun.*'] : null,
+                                'Gelombang' => Auth::user()->can('kelola-gelombang') ? ['icon' => 'adjust', 'route' => 'admin.gelombang.index', 'match' => 'admin.gelombang.*'] : null,
+                                'Jalur & Biaya' => Auth::user()->can('kelola-jalur') ? ['icon' => 'route', 'route' => 'admin.jalur.index', 'match' => 'admin.jalur.*'] : null,
+                                'Program Studi' => Auth::user()->can('kelola-prodi') ? ['icon' => 'academic', 'route' => 'admin.prodi.index', 'match' => 'admin.prodi.*'] : null,
+                                'Kelas Perkuliahan' => Auth::user()->can('kelola-kelas') ? ['icon' => 'square-stack', 'route' => 'admin.kelas.index', 'match' => 'admin.kelas.*'] : null,
+                                'Kuota Prodi' => Auth::user()->can('kelola-kuota') ? ['icon' => 'chart', 'route' => 'admin.kuota.index', 'match' => 'admin.kuota.*'] : null,
                                 'Promo' => ['icon' => 'credit-card', 'route' => 'admin.promo.index', 'match' => 'admin.promo.*'],
-                                'Setting Prodi' => ['icon' => 'adjust', 'route' => 'admin.setting-prodi.index', 'match' => 'admin.setting-prodi.*'],
-                                'Dokumen Persyaratan' => ['icon' => 'document', 'route' => 'admin.dokumen.index', 'match' => 'admin.dokumen.*'],
+                                'Setting Prodi' => Auth::user()->can('kelola-setting-prodi') ? ['icon' => 'adjust', 'route' => 'admin.setting-prodi.index', 'match' => 'admin.setting-prodi.*'] : null,
+                                'Dokumen Persyaratan' => Auth::user()->can('kelola-jalur') ? ['icon' => 'document', 'route' => 'admin.dokumen.index', 'match' => 'admin.dokumen.*'] : null,
                                 'Sumber Informasi' => ['icon' => 'info', 'route' => 'admin.sumber-informasi.index', 'match' => 'admin.sumber-informasi.*'],
-                            ],
+                            ]),
                         ],
                         [
                             'label' => 'Laporan',
-                            'items' => [
-                                'Rekap Pendaftaran' => ['icon' => 'chart', 'route' => 'admin.laporan.index', 'match' => 'admin.laporan.index'],
-                                'Rekap Lolos Seleksi' => ['icon' => 'check', 'route' => 'admin.laporan.lolos', 'match' => 'admin.laporan.lolos'],
-                                'Rekap Referrer' => ['icon' => 'chart', 'route' => 'admin.referrer.index', 'match' => 'admin.referrer.*'],
-                            ],
+                            'items' => array_filter([
+                                'Rekap Pendaftaran' => Auth::user()->can('kelola-pendaftaran') ? ['icon' => 'chart', 'route' => 'admin.laporan.index', 'match' => 'admin.laporan.index'] : null,
+                                'Rekap Lolos Seleksi' => Auth::user()->can('kelola-pendaftaran') ? ['icon' => 'check', 'route' => 'admin.laporan.lolos', 'match' => 'admin.laporan.lolos'] : null,
+                                'Rekap Referrer' => Auth::user()->can('kelola-referrer') ? ['icon' => 'chart', 'route' => 'admin.referrer.index', 'match' => 'admin.referrer.*'] : null,
+                            ]),
                         ],
                         [
                             'label' => 'Sistem',
                             'items' => array_filter([
                                 'Manajemen User' => Auth::user()->can('kelola-user') ? ['icon' => 'user', 'route' => 'admin.user.index', 'match' => 'admin.user.*'] : null,
+                                'Role & Hak Akses' => Auth::user()->can('kelola-role') ? ['icon' => 'adjust', 'route' => 'admin.role.index', 'match' => 'admin.role.*'] : null,
                                 'Pengaturan Umum' => ['icon' => 'adjust', 'route' => 'admin.pengaturan.index', 'match' => 'admin.pengaturan.*'],
                             ]),
                         ],
                     ];
+
+                    // Sembunyikan grup yang seluruh itemnya tersaring habis oleh permission,
+                    // supaya tidak muncul label grup kosong tanpa menu di bawahnya.
+                    $navGroups = array_values(array_filter($navGroups, fn ($group) => count($group['items']) > 0));
                 @endphp
 
                 <nav class="flex-1 space-y-1 overflow-y-auto px-3 py-4">

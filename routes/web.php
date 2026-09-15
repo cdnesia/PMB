@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\PengaturanController;
 use App\Http\Controllers\Admin\ProdiController;
 use App\Http\Controllers\Admin\PromoController;
 use App\Http\Controllers\Admin\ReferrerController as AdminReferrerController;
+use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SettingProdiController;
 use App\Http\Controllers\Admin\SumberInformasiController;
 use App\Http\Controllers\Admin\TahunPenerimaanController;
@@ -78,10 +79,11 @@ Route::middleware('auth')->group(function () {
 });
 
 // ===== Area Admin (Panitia) =====
-Route::middleware(['auth', 'role:super-admin|admin-pmb'])->prefix('admin')->name('admin.')->group(function () {
+// Gerbang berbasis permission (bukan nama role) supaya role kustom yang
+// dibuat lewat menu Role & Hak Akses bisa masuk cukup dengan diberi
+// permission "dashboard-admin", tanpa perlu mengubah kode.
+Route::middleware(['auth', 'permission:dashboard-admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
-    Route::get('laporan', [LaporanController::class, 'index'])->name('laporan.index');
-    Route::get('laporan/lolos', [LaporanController::class, 'lolos'])->name('laporan.lolos');
 
     Route::post('notifikasi/baca-semua', [NotifikasiController::class, 'bacaSemua'])->name('notifikasi.baca-semua');
     Route::post('notifikasi/{notifikasi}/baca', [NotifikasiController::class, 'baca'])->name('notifikasi.baca');
@@ -90,30 +92,56 @@ Route::middleware(['auth', 'role:super-admin|admin-pmb'])->prefix('admin')->name
     Route::put('pengaturan', [PengaturanController::class, 'update'])->name('pengaturan.update');
     Route::post('pengaturan/sync-neofeeder', [PengaturanController::class, 'syncNeoFeeder'])->name('pengaturan.sync-neofeeder');
 
-    Route::resource('tahun', TahunPenerimaanController::class)->except('show');
-    Route::resource('jalur', JalurController::class)->except('show');
-    Route::resource('prodi', ProdiController::class)->except('show');
-    Route::resource('kelas', KelasPerkuliahanController::class)->except('show')->parameters(['kelas' => 'kelas']);
-    Route::resource('kuota', KuotaController::class)->except('show')->parameters(['kuota' => 'kuota']);
-    Route::resource('dokumen', DokumenPersyaratanController::class)->except('show')->parameters(['dokumen' => 'dokumen']);
-    Route::resource('gelombang', GelombangController::class)->except('show');
     Route::resource('promo', PromoController::class)->except('show');
     Route::resource('sumber-informasi', SumberInformasiController::class)->except('show')->parameters(['sumber-informasi' => 'sumberInformasi']);
 
-    Route::get('pendaftar', [PendaftarController::class, 'index'])->name('pendaftar.index');
-    Route::get('pendaftar/{pendaftaran}', [PendaftarController::class, 'show'])->name('pendaftar.show');
-    Route::patch('pendaftar/{pendaftaran}/pembayaran', [PendaftarController::class, 'updatePembayaran'])->name('pendaftar.pembayaran');
-    Route::patch('pendaftar/{pendaftaran}/verifikasi-pembayaran', [PendaftarController::class, 'verifikasiPembayaran'])->name('pendaftar.verifikasi-pembayaran');
-    Route::patch('pendaftar/{pendaftaran}/verifikasi-berkas', [PendaftarController::class, 'verifikasiBerkas'])->name('pendaftar.verifikasi-berkas');
-    Route::patch('pendaftar/{pendaftaran}/nilai', [PendaftarController::class, 'inputNilai'])->name('pendaftar.nilai');
-    Route::patch('pendaftar/{pendaftaran}/status', [PendaftarController::class, 'updateStatus'])->name('pendaftar.status');
-    Route::patch('pendaftar/{pendaftaran}/reset-password', [PendaftarController::class, 'resetPassword'])->name('pendaftar.reset-password');
-    Route::patch('pendaftar/{pendaftaran}/daftar-ulang', [PendaftarController::class, 'verifikasiDaftarUlang'])->name('pendaftar.daftar-ulang');
-    Route::patch('pendaftar/dokumen/{dokumen}/verifikasi', [PendaftarController::class, 'verifikasiDokumen'])->name('pendaftar.dokumen-verifikasi');
+    Route::middleware('permission:kelola-tahun')->group(function () {
+        Route::resource('tahun', TahunPenerimaanController::class)->except('show');
+    });
 
-    Route::get('setting-prodi', [SettingProdiController::class, 'index'])->name('setting-prodi.index');
-    Route::get('setting-prodi/{prodi}/edit', [SettingProdiController::class, 'edit'])->name('setting-prodi.edit');
-    Route::put('setting-prodi/{prodi}', [SettingProdiController::class, 'update'])->name('setting-prodi.update');
+    Route::middleware('permission:kelola-jalur')->group(function () {
+        Route::resource('jalur', JalurController::class)->except('show');
+        Route::resource('dokumen', DokumenPersyaratanController::class)->except('show')->parameters(['dokumen' => 'dokumen']);
+    });
+
+    Route::middleware('permission:kelola-prodi')->group(function () {
+        Route::resource('prodi', ProdiController::class)->except('show');
+    });
+
+    Route::middleware('permission:kelola-kelas')->group(function () {
+        Route::resource('kelas', KelasPerkuliahanController::class)->except('show')->parameters(['kelas' => 'kelas']);
+    });
+
+    Route::middleware('permission:kelola-kuota')->group(function () {
+        Route::resource('kuota', KuotaController::class)->except('show')->parameters(['kuota' => 'kuota']);
+    });
+
+    Route::middleware('permission:kelola-gelombang')->group(function () {
+        Route::resource('gelombang', GelombangController::class)->except('show');
+    });
+
+    Route::middleware('permission:kelola-setting-prodi')->group(function () {
+        Route::get('setting-prodi', [SettingProdiController::class, 'index'])->name('setting-prodi.index');
+        Route::get('setting-prodi/{prodi}/edit', [SettingProdiController::class, 'edit'])->name('setting-prodi.edit');
+        Route::put('setting-prodi/{prodi}', [SettingProdiController::class, 'update'])->name('setting-prodi.update');
+    });
+
+    Route::middleware('permission:kelola-pendaftaran')->group(function () {
+        Route::get('laporan', [LaporanController::class, 'index'])->name('laporan.index');
+        Route::get('laporan/export', [LaporanController::class, 'export'])->name('laporan.export');
+        Route::get('laporan/lolos', [LaporanController::class, 'lolos'])->name('laporan.lolos');
+
+        Route::get('pendaftar', [PendaftarController::class, 'index'])->name('pendaftar.index');
+        Route::get('pendaftar/{pendaftaran}', [PendaftarController::class, 'show'])->name('pendaftar.show');
+        Route::patch('pendaftar/{pendaftaran}/pembayaran', [PendaftarController::class, 'updatePembayaran'])->name('pendaftar.pembayaran');
+        Route::patch('pendaftar/{pendaftaran}/verifikasi-pembayaran', [PendaftarController::class, 'verifikasiPembayaran'])->name('pendaftar.verifikasi-pembayaran');
+        Route::patch('pendaftar/{pendaftaran}/verifikasi-berkas', [PendaftarController::class, 'verifikasiBerkas'])->name('pendaftar.verifikasi-berkas');
+        Route::patch('pendaftar/{pendaftaran}/nilai', [PendaftarController::class, 'inputNilai'])->name('pendaftar.nilai');
+        Route::patch('pendaftar/{pendaftaran}/status', [PendaftarController::class, 'updateStatus'])->name('pendaftar.status');
+        Route::patch('pendaftar/{pendaftaran}/reset-password', [PendaftarController::class, 'resetPassword'])->name('pendaftar.reset-password');
+        Route::patch('pendaftar/{pendaftaran}/daftar-ulang', [PendaftarController::class, 'verifikasiDaftarUlang'])->name('pendaftar.daftar-ulang');
+        Route::patch('pendaftar/dokumen/{dokumen}/verifikasi', [PendaftarController::class, 'verifikasiDokumen'])->name('pendaftar.dokumen-verifikasi');
+    });
 
     Route::middleware('permission:kelola-cbt')->group(function () {
         Route::resource('cbt-soal', CbtSoalController::class)->except('show')->parameters(['cbt-soal' => 'soal']);
@@ -130,6 +158,13 @@ Route::middleware(['auth', 'role:super-admin|admin-pmb'])->prefix('admin')->name
 
     Route::middleware('permission:kelola-user')->group(function () {
         Route::resource('user', AdminUserController::class)->except('show');
+    });
+
+    Route::middleware('permission:kelola-role')->group(function () {
+        Route::get('role', [RoleController::class, 'index'])->name('role.index');
+        Route::post('role', [RoleController::class, 'store'])->name('role.store');
+        Route::put('role/{role}', [RoleController::class, 'update'])->name('role.update');
+        Route::delete('role/{role}', [RoleController::class, 'destroy'])->name('role.destroy');
     });
 });
 

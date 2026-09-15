@@ -46,7 +46,7 @@ class DokumenController extends Controller
         $user = Auth::user();
 
         abort_unless(
-            $pendaftaran->user_id === $user->id || $user->hasAnyRole(['super-admin', 'admin-pmb']),
+            $pendaftaran->user_id === $user->id || $user->can('kelola-pendaftaran'),
             403
         );
     }

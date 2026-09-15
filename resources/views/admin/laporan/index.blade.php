@@ -3,7 +3,13 @@
 @section('title', 'Laporan')
 
 @section('content')
-    <x-ui-page-header title="Rekap Pendaftaran" description="Ringkasan dan laporan penerimaan mahasiswa baru." />
+    <x-ui-page-header title="Rekap Pendaftaran" description="Ringkasan dan laporan penerimaan mahasiswa baru.">
+        <x-slot:action>
+            <x-ui-button variant="secondary" icon="download" :href="route('admin.laporan.export')">
+                Export ke Excel
+            </x-ui-button>
+        </x-slot:action>
+    </x-ui-page-header>
 
     {{-- Ringkasan utama --}}
     <div class="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 xl:grid-cols-6">
