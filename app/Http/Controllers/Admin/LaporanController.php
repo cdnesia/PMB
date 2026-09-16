@@ -72,8 +72,9 @@ class LaporanController extends Controller
     /**
      * Export rekap pendaftar lengkap ke file Excel (.xlsx):
      * identitas, alamat lengkap dengan kode wilayah, pendidikan asal,
-     * jalur/gelombang, kode referral (jika ada), prodi yang dipilih,
-     * status pembayaran, hingga tautan ke halaman detail & berkas pendaftar.
+     * jalur/gelombang, kode referral (jika ada), prodi yang dipilih, status
+     * & nominal biaya pendaftaran serta biaya semester (daftar ulang) secara
+     * terpisah, hingga tautan ke halaman detail & berkas pendaftar.
      */
     public function export(): StreamedResponse
     {
@@ -92,11 +93,15 @@ class LaporanController extends Controller
             'Jalur', 'Gelombang',
             'Kode Referral',
             'Prodi Pilihan 1', 'Prodi Pilihan 2',
-            'Status Pendaftaran', 'Status Pembayaran',
+            'Status Pendaftaran',
+            'Biaya Pendaftaran', 'Pembayaran Pendaftaran',
+            'Biaya Semester', 'Pembayaran Semester',
             'Link Berkas',
         ];
 
         $linkBerkasColumn = Coordinate::stringFromColumnIndex(count($columns));
+        $pembayaranPendaftaranColumn = Coordinate::stringFromColumnIndex(array_search('Pembayaran Pendaftaran', $columns, true) + 1);
+        $pembayaranSemesterColumn = Coordinate::stringFromColumnIndex(array_search('Pembayaran Semester', $columns, true) + 1);
 
         $spreadsheet = new Spreadsheet;
         $sheet = $spreadsheet->getActiveSheet();
@@ -113,7 +118,7 @@ class LaporanController extends Controller
         $no = 0;
         $rowNumber = 2;
 
-        Pendaftaran::with(['user', 'pendaftar', 'jalur', 'gelombang', 'referrer', 'prodiPilihan.prodi'])
+        Pendaftaran::with(['user', 'pendaftar', 'jalur', 'gelombang', 'referrer', 'prodiPilihan.prodi', 'pembayaran', 'daftarUlang'])
             ->orderBy('nomor_pendaftaran')
             ->chunk(200, function ($rows) use ($sheet, $linkBerkasColumn, &$no, &$rowNumber) {
                 foreach ($rows as $p) {
@@ -154,7 +159,10 @@ class LaporanController extends Controller
                         $prodiPilihan2 ? $namaProdi($prodiPilihan2) : '',
                         str_replace('_', ' ', $p->status),
                         str_replace('_', ' ', $p->status_pembayaran),
-                    ], null, 'A'.$rowNumber);
+                        $p->pembayaran ? (float) $p->pembayaran->nominal : 0,
+                        $p->daftarUlang ? str_replace('_', ' ', $p->daftarUlang->status) : 'belum daftar ulang',
+                        $p->daftarUlang ? (float) $p->daftarUlang->nominal : 0,
+                    ], null, 'A'.$rowNumber, true);
 
                     $berkasUrl = route('admin.pendaftar.show', $p);
                     $cell = $sheet->getCell($linkBerkasColumn.$rowNumber);
@@ -165,6 +173,14 @@ class LaporanController extends Controller
                     $rowNumber++;
                 }
             });
+
+        if ($rowNumber > 2) {
+            $lastDataRow = $rowNumber - 1;
+            $sheet->getStyle("{$pembayaranPendaftaranColumn}2:{$pembayaranPendaftaranColumn}{$lastDataRow}")
+                ->getNumberFormat()->setFormatCode('#,##0');
+            $sheet->getStyle("{$pembayaranSemesterColumn}2:{$pembayaranSemesterColumn}{$lastDataRow}")
+                ->getNumberFormat()->setFormatCode('#,##0');
+        }
 
         for ($i = 1; $i <= Coordinate::columnIndexFromString($sheet->getHighestColumn()); $i++) {
             $col = Coordinate::stringFromColumnIndex($i);
